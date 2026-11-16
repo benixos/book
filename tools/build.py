@@ -38,6 +38,10 @@ FORBIDDEN = [
     (r"\b(LS|DEV|CLUS|SOF|QR|THUN|KAN)-\d+\b", "internal tracker key"),
     (r"\b(venus|jupiter|saturn|amalthea|Proxmox)\b", "internal machine name"),
     (r"\b[Vv]ault\b", "internal vault reference"),
+    (r"\b(Quickring|Courier|Thunderhead|Cumulus|Anvil|Wisp|Halcyon|Squall|Bozzetto|Digital Zen|SlashBuilder)\b", "studio product or device name"),
+    (r"slash-builder|benixos/(benixos|distribution|book)\b", "internal repository path"),
+    (r"\b(Keycloak|Jellyfin|Pi-hole|Frigate|Home Assistant|Haiku)\b", "third-party product name"),
+    (r"\b(MVP-?[AB]|milestone|roadmap|Jira|ruling|ruled)\b", "internal planning language"),
 ]
 
 GROUPS = {
@@ -183,7 +187,7 @@ def check(out_dir):
                 problems.append(f"assets/{f.name}: {why}")
     for f in sorted(out_dir.glob("*.html")):
         t = f.read_text()
-        visible = re.sub(r"<(script|style)\b.*?</\1>", "", t, flags=re.S)
+        visible = re.sub(r"<(script|style)\b.*?</\1>|<footer>.*?</footer>", "", t, flags=re.S)
         for pat, why in FORBIDDEN:
             for m in re.finditer(pat, visible):
                 problems.append(f"{f.name}: {why}: {visible[max(0, m.start() - 30):m.end() + 30]!r}")

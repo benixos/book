@@ -2,142 +2,95 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>6. Venue · The BenixOS Book</title>
-<meta name="description" content="Venue Kit and venued: alpha. About 31k lines and 489 tests upstream (11 November 2026). Not published. The name is provisional.">
+<meta name="description" content="Venue Kit and venued: alpha. The name is provisional.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html" aria-current="page">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html" aria-current="page">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="6-venue">6. Venue</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>Venue Kit</strong> and <code>venued</code>: <strong>alpha</strong>. About 31k lines and 489 tests upstream (11 November 2026). Not published. The name is provisional.</p>
-<p><strong>The executor <code>venue-node</code></strong>: <strong>Built</strong>. It passes a 133-check exit test on two platforms. It needs <strong>three unmerged venue-kit patches</strong>, runs a <strong>single node only</strong>, has <strong>no signed placements or grants</strong>, and speaks plain HTTP.</p>
-<p><strong>Multi-node</strong>: built and reviewed only against a simulated cluster. The latest independent review judged it not yet ready for a machine that hosts real services.</p>
+<p><strong>Venue Kit</strong> and <code>venued</code>: <strong>alpha</strong>. The name is provisional.</p>
+<p><strong>The executor:</strong> <strong>Built</strong> for a single node. It has no signed placements or grants and speaks plain HTTP.</p>
+<p><strong>Several nodes:</strong> built and reviewed only against a simulated cluster.</p>
 </div>
 
-<p>Venue is the directory, scheduler and ledger for <strong>every place work can run</strong>: a machine, a VM, an API provider, a rentable cloud pool, a peripheral behind a host. <strong>It does not run the work.</strong> Its own design says "it is not the executor". The piece that runs work is the node agent.</p>
-<h2 id="the-model-kubernetes-vocabulary-on-purpose">The model: Kubernetes' vocabulary, on purpose</h2>
-<p>Venue Kit uses the <strong>Kubernetes Resource Model</strong> rather than a new format: <code>Node</code>, <code>Endpoint</code>, <code>NodePool</code>, <code>ContractClass</code>, <code>ContractClaim</code>, <code>Placement</code> and <code>Budget</code>, in the API group <code>node.slashbuilder.com/v1alpha1</code>, with <code>PriorityClass</code> and <code>Lease</code> accepted verbatim. Kubernetes (and DRA, Karpenter) is treated as the standards body: its names and semantics are followed unless a divergence is recorded with a reason. The API group is deliberately <strong>not</strong> named after the Kit, so a rename touches one constant.</p>
+<p>Venue is the directory, scheduler and ledger for <strong>every place work can run</strong>: a machine, a VM, an API provider, a rentable cloud pool, a peripheral behind a host. <strong>It does not run the work.</strong> The node agent does.</p>
+<h2 id="the-model">The model</h2>
+<p>Venue uses the <strong>Kubernetes resource model</strong> instead of a new format: <code>Node</code>, <code>Endpoint</code>, <code>NodePool</code>, <code>ContractClass</code>, <code>ContractClaim</code>, <code>Placement</code> and <code>Budget</code>, under a versioned <code>v1alpha1</code> API group, with <code>PriorityClass</code> and <code>Lease</code> accepted verbatim. Kubernetes names and semantics are followed unless a divergence is recorded with a reason.</p>
 <h3 id="every-answer-is-yes-no-or-unknown">Every answer is Yes, No or Unknown</h3>
-<p>An <em>Unknown</em> says what would settle it. Nothing is trusted because a document says so:</p>
+<p>An <em>Unknown</em> says what would settle it. Nothing is trusted because a document says so.</p>
 <ul>
 <li>Each manager writes <strong>its own observation</strong>. The effective view is computed on read and keeps disagreements visible.</li>
 <li>Work that carries data classes needs <strong>both a use grant and the data owner's egress grant</strong>, or the answer is Unknown.</li>
-<li>Venue ships <strong>no data about any estate</strong>. Each install builds its own registry as plain YAML on the machine (<code>venue init</code>, <code>venue probe-local --save</code>).</li>
+<li>Venue ships <strong>no data about any estate</strong>. Each install builds its own registry as plain YAML.</li>
 </ul>
-<h3 id="keeping-a-machines-description-alive">Keeping a machine's description alive</h3>
-<p><code>venue pull</code> asks each machine over ssh to run <code>venue probe-local</code> (CPU, memory, disk, GPUs with live free memory, sound cards, container runtimes; Linux, macOS, Windows). It records an observation and a heartbeat. A machine that stops answering goes <strong>Ready, then Unknown</strong>. Containers are deliberately <strong>not tracked</strong>: workloads are another layer's job.</p>
+<h3 id="keeping-a-description-alive">Keeping a description alive</h3>
+<p><code>venue pull</code> asks each machine over ssh to run <code>venue probe-local</code> (CPU, memory, disk, GPUs with live free memory, sound cards, container runtimes) and records an observation and a heartbeat. A machine that stops answering goes <strong>Ready, then Unknown</strong>. Containers are not tracked; workloads are another layer's job.</p>
 <h2 id="venued-the-shared-registry"><code>venued</code>: the shared registry</h2>
-<p><code>venued</code> (19 October 2026) lets several programs, on one machine or many, share one registry.</p>
+<p><code>venued</code> lets several programs, on one machine or many, share one registry.</p>
 <ul>
-<li><strong>JSON over HTTP.</strong> A <strong>bearer token per app</strong> selects a <strong>manager</strong>, so the existing caps, principals and grants apply.</li>
+<li><strong>JSON over HTTP.</strong> A <strong>bearer token per app</strong> selects a <strong>manager</strong>, so caps, principals and grants apply.</li>
 <li><strong>Verbs:</strong> plan, hold, start, renew, release.</li>
-<li><strong>A long-poll event feed.</strong> Every write is an event at once.</li>
-<li><strong>Loopback by default.</strong> With <code>--tls</code> it serves the network with a self-signed certificate that each client <strong>pins by fingerprint</strong>, like an ssh host key. No certificate authority.</li>
-<li><strong>Tokens</strong> are <code>vnt_</code> plus 256 random bits. Only the SHA-256 is stored; the file is mode 0600.</li>
+<li><strong>A long-poll event feed.</strong> Every write is an event.</li>
+<li><strong>Loopback by default.</strong> With <code>--tls</code> it serves the network using a self-signed certificate that each client <strong>pins by fingerprint</strong>, like an ssh host key. No certificate authority.</li>
+<li><strong>Tokens</strong> are 256 random bits; only the SHA-256 is stored.</li>
 </ul>
-<h3 id="managers-and-classes">Managers and classes</h3>
-<p>A manager has a class in <code>authority.yaml</code>: <strong>Authoritative</strong>, <strong>NodeAgent</strong>, <strong>Consumer</strong>, <strong>Observer</strong>, <strong>Untrusted</strong>. A manager absent from the file is Untrusted and gets a 401. There is no CLI to add a manager; you append a line to <code>authority.yaml</code>.</p>
+<p>A manager has a class: <strong>Authoritative</strong>, <strong>NodeAgent</strong>, <strong>Consumer</strong>, <strong>Observer</strong> or <strong>Untrusted</strong>.</p>
 <h3 id="holds">Holds</h3>
-<p>A <strong>hold</strong> is a reservation. An app places one with a <strong>Placement</strong> document, <strong>starts</strong> it, <strong>renews</strong> it, and <strong>releases</strong> it. A start does not run anything by itself; it records that the hold is in use. Something else follows the feed and does the work.</p>
-<h2 id="the-executor-venue-node">The executor: <code>venue-node</code></h2>
-<p><code>venue-node</code> is the first form of the node agent. It lives in <code>benixos/benixos</code> as a Rust crate of about 16.8k lines. <code>docker compose up -d</code> on one machine gives you <strong><code>venued</code></strong> and <strong><code>venue-node</code></strong>; a hold followed by a start runs a container, <strong>but only if a local, default-deny policy allows it</strong>.</p>
+<p>A <strong>hold</strong> is a reservation. An app places one with a <strong>Placement</strong> document, <strong>starts</strong> it, <strong>renews</strong> it and <strong>releases</strong> it. A start records that the hold is in use. It runs nothing by itself.</p>
+<h2 id="the-executor">The executor</h2>
+<p>The executor is the first form of the node agent. It follows <code>venued</code>'s event feed and runs containers, <strong>but only if a local, default-deny policy allows it.</strong></p>
 <pre><code class="language-mermaid">sequenceDiagram
   participant App as App (token = Consumer)
   participant V as venued (no Docker)
-  participant E as venue-node (the only Docker socket)
+  participant E as Executor (the only Docker socket)
   participant P as Local policy (default deny)
   participant D as Docker
 
   App-&gt;&gt;V: POST /v1/holds (Placement + workload spec)
   V--&gt;&gt;App: 201
   App-&gt;&gt;V: POST /v1/holds/{n}/start
-  E-&gt;&gt;V: GET /v1/nodes/{node}/holds, long-poll /v1/events
+  E-&gt;&gt;V: read this node's holds, long-poll events
   V--&gt;&gt;E: hold + workload annotation
   E-&gt;&gt;P: check every rule
   alt a rule refuses
     P--&gt;&gt;E: refuse with the rule id
-    E-&gt;&gt;V: POST /v1/holds/{n}/status (the refusal is reported)
+    E-&gt;&gt;V: report the refusal
   else all pass
-    E-&gt;&gt;D: pull (tag always, digest if absent), create, start
-    E-&gt;&gt;V: POST /v1/holds/{n}/status (Running)
+    E-&gt;&gt;D: pull, create, start
+    E-&gt;&gt;V: report Running
   end
   App-&gt;&gt;V: DELETE /v1/holds/{n}
   E-&gt;&gt;D: remove the container
 </code></pre>
-<h3 id="the-shipped-design-in-six-lines">The shipped design in six lines</h3>
+<h3 id="design">Design</h3>
 <ol>
-<li>The executor authenticates as the <strong>NodeAgent</strong> manager <code>node:&lt;host&gt;</code> that <code>venue init</code> already writes. Its token is minted once by the bundle's <code>init</code> step.</li>
-<li>It requires the <strong>patched</strong> <code>venued</code>: patch A1 (<code>GET /v1/nodes/{name}/holds</code>) returns each hold with its workload annotation; A3 (<code>POST /v1/holds/{name}/status</code>) lets the executor report back; A2 adds the node to <code>hold.status</code> events. Without the patches <code>venue-node run</code> refuses to run.</li>
+<li>The executor authenticates as the <strong>NodeAgent</strong> manager for its node. Its token can read the holds on that node and report status. It cannot place or start anything.</li>
 <li><strong>What to run</strong> is the JSON in the Placement annotation <code>workload.benixos.io/spec</code>. A start is the order to run it.</li>
 <li>Every started hold passes the executor's <strong>local, default-deny policy</strong> before anything reaches Docker (<a href="07-grants-and-enforcement.html">Grants and enforcement</a>).</li>
 <li>The executor reports <strong>Running, Failed or Exited</strong> per hold.</li>
-<li>It is the <strong>only process with the Docker socket</strong>, acts only on containers that are its own (managed label, this node, <strong>and this install's random instance id</strong>), and keeps enforcing leases across restarts from a small persisted state.</li>
+<li>It is the <strong>only process with the Docker socket</strong>. It acts only on containers that are its own: managed label, this node, <strong>and this install's random instance id</strong>.</li>
+<li>It keeps enforcing leases across restarts from a small persisted state. It never stops workloads just because it restarted.</li>
 </ol>
-<h3 id="behaviour-that-was-verified-in-a-real-run">Behaviour that was verified in a real run</h3>
-<p>On native Ubuntu 26.04 (amd64) with Docker Engine 29.7.2: <strong>133 checks, 0 failed</strong>, all healthy in 7.5 s, Docker state identical before and after. The same suite passed on macOS Docker Desktop (arm64), on earlier code. Among the checks:</p>
+<h3 id="behaviour">Behaviour</h3>
 <ul>
 <li>Nothing listens off loopback.</li>
-<li>A started hold runs with labels, limits, no capabilities, a read-only root, uid 10100, on a user-defined <code>icc=false</code> network.</li>
-<li>Privileged mode, <code>docker.sock</code>, a disallowed image, traversal and a plain relative mount are all refused with the exact rule id, and nothing is created.</li>
-<li>An executor stop, SIGKILL or <code>down</code> then <code>up</code> adopts the same container.</li>
-<li>With <code>venued</code> stopped, a restarted executor stops the workload when its <em>persisted</em> lease ends, not before.</li>
+<li>A started hold runs with labels, limits, no capabilities, a read-only root and a non-root uid, on a user-defined network with inter-container traffic disabled.</li>
+<li>Privileged mode, <code>docker.sock</code>, a disallowed image, traversal and a plain relative mount are refused with the exact rule id, and nothing is created.</li>
+<li>A restarted executor adopts the same container.</li>
+<li>With <code>venued</code> stopped, a restarted executor stops a workload when its <em>persisted</em> lease ends, not before.</li>
 <li>No token appears in any log or <code>docker inspect</code>.</li>
 </ul>
-<h3 id="what-is-not-verified">What is not verified</h3>
-<p>Debian 12 itself, native Linux on arm64, rootless Docker, SELinux, the optional <code>socket-proxy</code> profile (never started), the lease-end stop and startup sweep <em>under a refusal</em> against a real <code>venued</code>, workload egress, and any CI beyond what was set up on 12 November 2026. Details in the repo README.</p>
-<h3 id="known-limits">Known limits</h3>
+<h3 id="limits">Limits</h3>
 <ul>
-<li><strong>The Docker socket is root on the host.</strong> The default-deny policy is the control; a flaw in the executor is host root.</li>
-<li><strong>Workload egress is open</strong>; <strong>workloads have no storage</strong> (mounts were removed, not hardened).</li>
-<li><strong>The executor token never expires</strong> and there is no rotation (finding L5, open).</li>
-<li><strong>Single node only. No signed placements or grants yet. Plain HTTP.</strong></li>
-<li><strong><code>down -v</code> orphans running workloads.</strong> There is a <code>reap-orphans</code> tool, tested against stubs only.</li>
+<li><strong>The Docker socket is root on the host.</strong> The default-deny policy is the control.</li>
+<li><strong>Workload egress is open</strong>, and <strong>workloads have no storage</strong>.</li>
+<li><strong>The executor token never expires.</strong></li>
+<li><strong>Single node. No signed placements or grants. Plain HTTP.</strong></li>
 </ul>
-<h2 id="rulings-that-shape-venue">Rulings that shape Venue</h2>
-<div class="tablewrap"><table>
-<thead>
-<tr>
-<th>Ruling</th>
-<th>Content</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Node agent location</td>
-<td>The node agent lives <strong>beside</strong> <code>venue-kit</code> in the system tree, not inside it. It holds root-equivalent access; <code>venue-kit</code> is a generic Apache-2.0 Kit.</td>
-</tr>
-<tr>
-<td>Placement authority</td>
-<td><strong>Venue decides <em>where</em>; the agent decides <em>whether</em>,</strong> from owner-signed grants. Fourteen amendments from the protocol and security reviews are proposed and not yet confirmed.</td>
-</tr>
-<tr>
-<td>11 November 2026</td>
-<td><strong>Venue first</strong>, as the wrapper in front of Docker on localhost, going straight to Docker (<code>bollard</code>) and <strong>not through <code>substrate-kit</code></strong>, which lacks ports and volumes in the local checkout.</td>
-</tr>
-<tr>
-<td>11 November 2026</td>
-<td>Keep <code>venued</code> as the API and put the Docker driver in a <strong>separate <code>venue-node</code> process</strong>, so the Docker socket stays out of the process that serves a token-protected HTTP API on the LAN.</td>
-</tr>
-</tbody>
-</table></div>
-<h2 id="several-nodes-the-weekend-build">Several nodes: the weekend build</h2>
-<p>A build-out on 14 November 2026 aimed to run Venue on every lab machine in one cluster by the end of the weekend. The design is a <strong>star</strong>: one registry host, an executor on every node, <strong>outbound-only</strong> from the nodes, and <strong>mutual TLS</strong> on the one inbound port.</p>
-<p>Five tracks ran in parallel:</p>
-<ul>
-<li>a heartbeat route and rebased venue-kit patches;</li>
-<li>a stunnel mTLS link and registry overlay;</li>
-<li>an operator CLI (<code>venue-ctl</code>) and a lease keeper (<code>venue-keepalive</code>);</li>
-<li>a simulated-cluster harness (Docker-in-Docker nodes);</li>
-<li>a host inventory with a dry-run rollout kit.</li>
-</ul>
-<p><strong>As of the evening of 15 November 2026:</strong></p>
-<ul>
-<li>Two independent security review rounds are done. The second judged the stack <strong>not yet ready for a machine that hosts real services</strong>. The findings went back for another pass.</li>
-<li>The integration branch merged cleanly (about 20,000 lines); the 3-node simulated suite is still running.</li>
-<li><strong>The realistic outcome</strong> is a built, reviewed, simulated-cluster-proven stack plus a rollout kit, <strong>not live nodes</strong>. Registry host choice, CA key custody, firewall rules and token handling stay with the project's owners.</li>
-<li>GPU placement cannot be validated until the build machine's Docker has an NVIDIA runtime.</li>
-</ul>
+<h2 id="several-nodes">Several nodes</h2>
+<p>The design is a <strong>star</strong>: one registry host, an executor on every node, <strong>outbound-only</strong> connections from the nodes, and <strong>mutual TLS</strong> on the one inbound port. It also includes a heartbeat route so a node can refresh its own lease, an operator CLI, and a lease keeper that renews holds and re-places work before the lease cap. It has been built and reviewed against a simulated cluster of Docker-in-Docker nodes, not against live machines.</p>
 <h2 id="next">Next</h2>
 <p><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></p>
 <div class="pager"><a href="05-nodes.html" rel="prev">← 5. Nodes</a><a href="07-grants-and-enforcement.html" rel="next">7. Grants and enforcement →</a></div>

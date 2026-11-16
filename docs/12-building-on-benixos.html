@@ -2,15 +2,15 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>12. Building on BenixOS · The BenixOS Book</title>
-<meta name="description" content="App Context Kit: alpha, public, with 61 shared fixtures that Dart and Rust both pass. Courier, the Hearth client, is live and stays a client first. The first workload (a notes reader) is built and ver">
+<meta name="description" content="App Context Kit: alpha. How a third party would package and publish an app is Draft.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html" aria-current="page">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html" aria-current="page">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="12-building-on-benixos">12. Building on BenixOS</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>App Context Kit: alpha</strong>, public, with 61 shared fixtures that Dart and Rust both pass. <strong>Courier</strong>, the Hearth client, is live and stays a client first. <strong>The first workload (a notes reader) is built and verified locally but has never been placed by BenixOS.</strong> How a third party would package and publish an app is <strong>Draft or Planned</strong>.</p>
+<p><strong>App Context Kit: alpha.</strong> How a third party would package and publish an app is <strong>Draft</strong>.</p>
 </div>
 
 <h2 id="what-can-run-on-a-node">What can run on a node</h2>
@@ -18,31 +18,31 @@
 <thead>
 <tr>
 <th>Kind</th>
-<th>How it is delivered</th>
-<th>Status</th>
+<th>Delivered as</th>
+<th>State</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>A container</strong></td>
-<td>An OCI image, pinned by digest</td>
+<td>An OCI image pinned by digest</td>
 <td><strong>Built</strong>: the executor runs it under local policy</td>
 </tr>
 <tr>
 <td><strong>A binary</strong></td>
-<td>A signed artifact; only if the operator allows</td>
-<td><strong>Prototype</strong>, in the distribution mechanism only</td>
+<td>A signed artifact, only if the operator allows</td>
+<td><strong>Prototype</strong>, in the distribution mechanism</td>
 </tr>
 <tr>
 <td><strong>A service behind the gateway</strong></td>
 <td>A glue plus the upstream service</td>
-<td><strong>Built</strong> for Jellyfin, HA and others, outside Venue</td>
+<td><strong>Built</strong>, outside Venue</td>
 </tr>
 </tbody>
 </table></div>
-<p>A workload's language is not the OS's concern: the OS runs it.</p>
-<h2 id="app-context-kit-what-an-app-gets">App Context Kit: what an app gets</h2>
-<p>One spec, two implementations (a Dart core with a Flutter companion, and a Rust crate), both held to <strong>61 shared conformance fixtures</strong>. It gives an app:</p>
+<p>A workload's language is not the OS's concern. The OS runs it.</p>
+<h2 id="app-context-kit">App Context Kit</h2>
+<p>One spec, two implementations (a Dart core with a Flutter companion, and a Rust crate), both held to <strong>shared conformance fixtures</strong>. It gives an app:</p>
 <ul>
 <li>an <strong>identity</strong>,</li>
 <li><strong>directories and settings</strong>, with <strong>test and scratch modes</strong>,</li>
@@ -50,7 +50,6 @@
 <li>a <strong>Venue session</strong>, and</li>
 <li><strong>opt-in peers</strong>.</li>
 </ul>
-<p>Six demo apps live in the Kit Book repo. It has no stable API and is not published to crates.io. An earlier spike of the same idea, <code>application-kit</code>, is probably superseded; the atlas asks for that to be confirmed and the spike archived or folded in.</p>
 <h2 id="other-kits-an-app-composes">Other Kits an app composes</h2>
 <div class="tablewrap"><table>
 <thead>
@@ -82,11 +81,11 @@
 </tr>
 <tr>
 <td>Local model inference</td>
-<td>Inference Kit (egress-gated, immutable OS-shipped models)</td>
+<td>Inference Kit</td>
 </tr>
 <tr>
 <td>UI</td>
-<td>Interface Kit over Digital Zen tokens</td>
+<td>Interface Kit</td>
 </tr>
 <tr>
 <td>A workflow strip</td>
@@ -94,82 +93,41 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="courier">Courier</h2>
-<p>Courier is the Hearth client: an OSS core plus a branded overlay, in the Quickring org. <strong>It stays a client first</strong> (a locked decision) and stays backend-agnostic. DeviceNix may host it as a kiosk-mode Flutter client on a test machine; it does not modify it.</p>
-<h2 id="the-first-workload-a-notes-reader">The first workload: a notes reader</h2>
-<p>The first BenixOS workload is a <strong>notes reader</strong>. It is a good bootstrap project: we can use it immediately to do work in building out more BenixOS functionality.</p>
-<p>It is a Python process behind a loopback-only, key-gated web server. It already earns its keep: it is how we read and search our own working notes, including BenixOS's, from any machine.</p>
+<h2 id="what-a-workload-needs-from-the-node">What a workload needs from the node</h2>
+<p>A small, read-only web service is a useful test of the mechanism. It forces the gaps that matter.</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
-<th>Step</th>
-<th>What runs</th>
-<th>State</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>v0</strong></td>
-<td>The reader only, <strong>no network</strong></td>
-<td>Built and verified locally; <strong>not yet run by any BenixOS node</strong></td>
-</tr>
-<tr>
-<td><strong>v1</strong></td>
-<td>Reader plus browser agent chat</td>
-<td>Design only</td>
-</tr>
-<tr>
-<td><strong>v2</strong></td>
-<td>Published view as namespace nodes over <code>qr.view/patch</code></td>
-<td>Later</td>
-</tr>
-</tbody>
-</table></div>
-<h3 id="the-run-shape-a-node-would-apply">The run shape a node would apply</h3>
-<p><code>--user &lt;uid&gt;</code>, <code>--network none</code>, <code>--read-only</code>, <code>--cap-drop ALL</code>, <code>no-new-privileges</code>, 128 pids, 512 MB, <code>/tmp</code> as a noexec tmpfs, the notes directory mounted <code>:ro</code>, a socket directory, the access key as a read-only file, exposed on loopback by a socket proxy. Tested inside the container: only a loopback interface, outbound connects fail, writes fail, executing from <code>/tmp</code> is denied, effective capabilities are zero, and the key is not in the environment.</p>
-<h3 id="the-five-gaps-it-forces">The five gaps it forces</h3>
-<div class="tablewrap"><table>
-<thead>
-<tr>
-<th>#</th>
 <th>Needs</th>
-<th>Why BenixOS cannot express it today</th>
+<th>What the node must provide</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td>The notes directory <strong>read-only</strong></td>
-<td>No volumes at all. A mount must be a typed, owner-granted resource, <strong>never a host path</strong>.</td>
+<td>A directory mounted <strong>read-only</strong></td>
+<td>A typed, owner-granted resource, <strong>never a host path</strong></td>
 </tr>
 <tr>
-<td>2</td>
-<td>The access key as a <strong>secret file</strong></td>
-<td>No secrets delivery. Not an env var, a command line or an image layer.</td>
+<td>A <strong>secret file</strong></td>
+<td>Secrets delivery: not an environment variable, a command line or an image layer</td>
 </tr>
 <tr>
-<td>3</td>
 <td><strong>Exposure with no network</strong></td>
-<td>A published port needs a bridge network and egress. The node should proxy a <strong>Unix socket</strong> to loopback or the fabric.</td>
+<td>The node proxies a Unix socket to loopback or the fabric</td>
 </tr>
 <tr>
-<td>4</td>
-<td>A <strong>registry</strong> to pin by digest</td>
-<td>The image is local; a lock needs a registry manifest digest.</td>
+<td>An image to <strong>pin by digest</strong></td>
+<td>A registry whose manifest digest a lock can name</td>
 </tr>
 <tr>
-<td>5</td>
-<td>The node's <strong>unprivileged user</strong>, not a baked-in uid</td>
-<td>Containers run as the image's user today.</td>
+<td>An <strong>unprivileged user</strong></td>
+<td>The node's own user, not a uid baked into the image</td>
 </tr>
 </tbody>
 </table></div>
-<p>Health checks, resource limits and a binary sandbox are not blockers.</p>
-<h3 id="why-this-is-the-right-first-workload">Why this is the right first workload</h3>
-<p>It is small and honest, it forces the right three mechanism gaps and little else, and the people building BenixOS use it daily, so defects surface fast. Milestone M3 names the next workloads: Errand and Dispatcher jobs, a model-bench job and the Minecraft host, all placed by BenixOS.</p>
 <h2 id="next">Next</h2>
-<p><a href="13-one-node-bundle.html">13. The one-node bundle</a></p>
-<div class="pager"><a href="11-hosts-and-devicenix.html" rel="prev">← 11. Hosts and DeviceNix</a><a href="13-one-node-bundle.html" rel="next">13. The one-node bundle →</a></div>
+<p><a href="13-security-model.html">13. The security model</a></p>
+<div class="pager"><a href="11-hosts-and-devicenix.html" rel="prev">← 11. Hosts and DeviceNix</a><a href="13-security-model.html" rel="next">13. The security model →</a></div>
 <footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
 </main></div>
 <script src="assets/site.js" defer></script>

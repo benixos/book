@@ -2,13 +2,12 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Glossary · The BenixOS Book</title>
-<meta name="description" content="Terms are as the project defines them on 15 November 2026. A term marked (draft) comes from a draft document.">
+<meta name="description" content="The BenixOS Book">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html" aria-current="page">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html" aria-current="page">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="glossary">Glossary</h1>
-<p>Terms are as the project defines them on 15 November 2026. A term marked <em>(draft)</em> comes from a draft document.</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -19,203 +18,183 @@
 <tbody>
 <tr>
 <td><strong>Admission</strong></td>
-<td>An owner-signed record saying "this service, from this publisher, as this class, may exist" on a node. No admission, no run. <a href="09-distribution.html">Chapter 9</a>.</td>
-</tr>
-<tr>
-<td><strong>Advertisement freshness</strong></td>
-<td>How a node's liveness is judged: recency of its advertisement, not <code>DPresence</code>. <em>(draft)</em></td>
+<td>An owner-signed record saying a service may exist on a node. No admission, no run</td>
 </tr>
 <tr>
 <td><strong>Authority registry</strong></td>
-<td>The one Venue registry a node is bound to for placement. <em>(draft)</em></td>
+<td>The one Venue registry a node is bound to for placement</td>
 </tr>
 <tr>
 <td><strong>BenixOS</strong></td>
-<td>The distributed OS: one namespace, identity, placement and storage across every node a person or household owns.</td>
+<td>The distributed OS: one namespace, identity, placement and storage across a person's or household's nodes</td>
 </tr>
 <tr>
 <td><strong>Channel</strong></td>
-<td>A folder of signed release files (nightly, beta, stable) served by any web server; not trusted.</td>
+<td>A folder of signed release files, served by any web server; not trusted</td>
 </tr>
 <tr>
 <td><strong>Claim</strong></td>
-<td>Binding a device to an owner: pins the owner key and produces a signed binding record.</td>
+<td>Binding a device to an owner: pins the owner key and produces a signed binding record</td>
 </tr>
 <tr>
 <td><strong>Client node</strong></td>
-<td>A node that holds keys and presents grants but hosts no services and holds no leases.</td>
+<td>A node that holds keys and presents grants but hosts no services and holds no leases</td>
 </tr>
 <tr>
 <td><strong>Conformance suite</strong></td>
-<td>Tests a Hearth implementation, or a node, must pass. Neither exists yet.</td>
+<td>Tests a Hearth implementation, or a node, must pass</td>
 </tr>
 <tr>
 <td><strong>D (message)</strong></td>
-<td>A server-pushed Hearth message with <code>tag = 0</code>.</td>
+<td>A server-pushed Hearth message with <code>tag = 0</code></td>
 </tr>
 <tr>
 <td><strong>DeviceNix</strong></td>
-<td>The BenixOS-native host distro; Yocto in <code>slash-builder/core</code>.</td>
+<td>The native host distro</td>
 </tr>
 <tr>
 <td><strong>Distribution</strong></td>
-<td>A named bundle of services with roles and host support, resolved to a lock and published on a channel.</td>
+<td>A named bundle of services resolved to a lock and published on a channel</td>
 </tr>
 <tr>
 <td><strong>Envelope</strong></td>
-<td>The single Protobuf message on every Hearth frame.</td>
+<td>The single Protobuf message on every Hearth frame</td>
 </tr>
 <tr>
 <td><strong>Executor</strong></td>
-<td>The process that follows <code>venued</code>'s feed and runs containers. <code>venue-node</code> is its first form.</td>
+<td>The process that follows <code>venued</code>'s feed and runs containers</td>
 </tr>
 <tr>
 <td><strong>Fencing token</strong></td>
-<td><code>(registry key id, incarnation, hold revision)</code>, minted by the registry. <em>(draft)</em></td>
+<td><code>(registry key id, incarnation, hold revision)</code>, minted by the registry</td>
 </tr>
 <tr>
 <td><strong>Full node</strong></td>
-<td>A node that hosts services.</td>
+<td>A node that hosts services</td>
 </tr>
 <tr>
 <td><strong>Glue</strong></td>
-<td>A service adapter exposing an upstream service as nodes in the namespace.</td>
+<td>A service adapter that exposes an upstream service as nodes in the namespace</td>
 </tr>
 <tr>
 <td><strong>Grant</strong></td>
-<td>An owner-signed, typed, attenuable, offline-verifiable permission to use or egress a resource. <em>(draft)</em></td>
+<td>An owner-signed, typed, attenuable, offline-verifiable permission to use or egress a resource</td>
 </tr>
 <tr>
 <td><strong>Hearth</strong></td>
-<td>The open wire protocol for distributed personal resources, 9P-inspired.</td>
+<td>The open wire protocol for distributed personal resources</td>
 </tr>
 <tr>
 <td><strong>High-water mark</strong></td>
-<td>The highest registry revision a node has accepted, persisted on disk. <em>(draft)</em></td>
+<td>The highest registry revision a node has accepted, persisted on disk</td>
 </tr>
 <tr>
 <td><strong>Hold</strong></td>
-<td>A Venue reservation: place, start, renew, release.</td>
+<td>A Venue reservation: place, start, renew, release</td>
 </tr>
 <tr>
 <td><strong>Hub</strong></td>
-<td>The server that routes Hearth sessions; Quickring operates the reference one.</td>
+<td>The server that routes Hearth sessions</td>
 </tr>
 <tr>
 <td><strong>Incarnation</strong></td>
-<td>A registry's restore generation; a restored registry starts a new one. <em>(draft)</em></td>
+<td>A registry's restore generation</td>
 </tr>
 <tr>
 <td><strong>Kit</strong></td>
-<td>A focused library owning one domain, with an API others build on.</td>
+<td>A library that owns one domain, with an API others build on</td>
 </tr>
 <tr>
 <td><strong>Lease</strong></td>
-<td>The time a hold or placement stays valid; judged by the node's own monotonic clock.</td>
+<td>The time a hold or placement stays valid, judged by the node's own monotonic clock</td>
 </tr>
 <tr>
 <td><strong>libbenix</strong></td>
-<td>The portable primitive library in <code>benix-base</code>; candidate node-contract primitives.</td>
+<td>The portable primitive library</td>
 </tr>
 <tr>
 <td><strong>Lock</strong></td>
-<td>The complete, self-contained, hash-identified plan a distribution compiles to.</td>
+<td>The self-contained, hash-identified plan a distribution compiles to</td>
 </tr>
 <tr>
 <td><strong>Manager</strong></td>
-<td>A Venue principal class with its own token and caps: Authoritative, NodeAgent, Consumer, Observer, Untrusted.</td>
+<td>A Venue principal with its own token and caps: Authoritative, NodeAgent, Consumer, Observer or Untrusted</td>
 </tr>
 <tr>
 <td><strong>Node</strong></td>
-<td>A claimed machine or container running a node agent.</td>
+<td>A claimed machine or container running a node agent</td>
 </tr>
 <tr>
 <td><strong>Node agent</strong></td>
-<td>The resident process that decides <em>whether</em> a placement runs, from grants and local policy.</td>
+<td>The resident process that decides <em>whether</em> a placement runs</td>
 </tr>
 <tr>
 <td><strong>Node contract</strong></td>
-<td>The document everything else is specified against. v0 is a draft.</td>
+<td>The document everything else is specified against</td>
 </tr>
 <tr>
 <td><strong>Owner</strong></td>
-<td>The person whose key was pinned on the node at claim.</td>
+<td>The person whose key was pinned on the node at claim</td>
 </tr>
 <tr>
 <td><strong>Partition policy</strong></td>
-<td>Per workload: <em>replace</em>, <em>hold</em> or <em>self-stop</em> if the registry is lost. <em>(draft)</em></td>
+<td>Per workload: <em>replace</em>, <em>hold</em> or <em>self-stop</em> if the registry is lost</td>
 </tr>
 <tr>
 <td><strong>Placement</strong></td>
-<td>A Venue decision about where work runs. <strong>Not an authorization.</strong></td>
-</tr>
-<tr>
-<td><strong>Profile</strong></td>
-<td>A tiered selection of BenixOS offered by Quickring, at engineering altitude.</td>
+<td>A Venue decision about where work runs. Not an authorization</td>
 </tr>
 <tr>
 <td><strong>PoP</strong></td>
-<td>Proof of possession of a device key.</td>
-</tr>
-<tr>
-<td><strong>Quickring</strong></td>
-<td>The commercial operator built on Hearth and BenixOS.</td>
+<td>Proof of possession of a device key</td>
 </tr>
 <tr>
 <td><strong>R (message)</strong></td>
-<td>A server response to a T, with the same tag.</td>
+<td>A server response to a T, with the same tag</td>
 </tr>
 <tr>
 <td><strong>Registry key</strong></td>
-<td>The key the registry signs placements with; separate from its TLS key. <em>(draft)</em></td>
+<td>The key the registry signs placements with; separate from its TLS key</td>
 </tr>
 <tr>
 <td><strong>Release id</strong></td>
-<td>The hash of a lock's contents.</td>
+<td>The hash of a lock's contents</td>
 </tr>
 <tr>
 <td><strong>Roster</strong></td>
-<td>The household's list of devices, attested and read by devices.</td>
+<td>The household's list of devices, attested and read by devices</td>
 </tr>
 <tr>
 <td><strong>Role</strong></td>
-<td>An owner-signed assignment of what a node may do; checked against a placement's group label. <em>(draft)</em></td>
+<td>An owner-signed assignment of what a node may do</td>
 </tr>
 <tr>
 <td><strong>Sealed payload</strong></td>
-<td>An end-to-end encrypted Hearth payload; the hub cannot read it.</td>
-</tr>
-<tr>
-<td><strong>Star topology</strong></td>
-<td>One registry host, an executor on every node, outbound-only.</td>
+<td>An end-to-end encrypted Hearth payload that the hub cannot read</td>
 </tr>
 <tr>
 <td><strong>T (message)</strong></td>
-<td>A client request; the server answers with exactly one R or <code>RError</code>.</td>
+<td>A client request; the server answers with exactly one R or <code>RError</code></td>
 </tr>
 <tr>
 <td><strong>Tag</strong></td>
-<td>The per-message correlation id.</td>
-</tr>
-<tr>
-<td><strong>Thunderhead</strong></td>
-<td>The reference-hardware category: Aether (Pi 5, CM5) and Forge (AMD64).</td>
+<td>The per-message correlation id</td>
 </tr>
 <tr>
 <td><strong>Typed address</strong></td>
-<td>A resource address parsed once into a typed value that rejects non-canonical spellings. <em>(draft)</em></td>
+<td>A resource address parsed once into a typed value that rejects non-canonical spellings</td>
 </tr>
 <tr>
 <td><strong>Venue</strong></td>
-<td>The registry, planner and ledger for places work can run. Provisional name.</td>
+<td>The registry, planner and ledger for places work can run</td>
 </tr>
 <tr>
 <td><strong><code>venued</code></strong></td>
-<td>Venue's daemon: JSON over HTTP, a token per app, a long-poll event feed.</td>
+<td>Venue's daemon: JSON over HTTP, a token per app, a long-poll event feed</td>
 </tr>
 </tbody>
 </table></div>
-<div class="pager"><a href="16-open-questions.html" rel="prev">← 16. Open questions</a><a href="about.html" rel="next">About this book →</a></div>
+<div class="pager"><a href="14-status.html" rel="prev">← 14. Status</a><a href="about.html" rel="next">About this book →</a></div>
 <footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
 </main></div>
 <script src="assets/site.js" defer></script>
