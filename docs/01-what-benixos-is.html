@@ -2,127 +2,77 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>1. What BenixOS is · The BenixOS Book</title>
-<meta name="description" content="Partial. The definition and vocabulary on this page are settled. The system itself is partly built: the placement path runs on one node in a compose bundle, and most of the rest is draft or planned. S">
+<meta name="description" content="Partial. The definition and vocabulary are settled. The system is partly built; see Status.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html" aria-current="page">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html" aria-current="page">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="1-what-benixos-is">1. What BenixOS is</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>Partial.</strong> The definition and vocabulary on this page are settled. The system itself is partly built: the placement path runs on one node in a compose bundle, and most of the rest is draft or planned. See <a href="15-status-and-roadmap.html">Status and roadmap</a>. Status is as of 15 November 2026.</p>
+<p><strong>Partial.</strong> The definition and vocabulary are settled. The system is partly built; see <a href="14-status.html">Status</a>.</p>
 </div>
 
-<h2 id="the-plan-in-one-sentence">The plan in one sentence</h2>
-<p><strong>SlashBuilder builds BenixOS, a distributed operating system composed of Kits, over the Hearth protocol, and runs it on any host. DeviceNix is the light Linux distro that is its native host on owned hardware. Quickring is the commercial operator, offering tiered versions (profiles) of BenixOS.</strong></p>
-<p>That sentence dates from 2 November 2026. It was a refinement of the plan, not a change of direction. Before it, "BenixOS" meant a Linux distribution. After it, BenixOS is the system and the Linux distribution is DeviceNix.</p>
-<h2 id="the-vocabulary">The vocabulary</h2>
+<p>BenixOS is a distributed operating system: one namespace, identity, placement and storage across every machine a person or household owns. It is composed of <strong>Kits</strong>, speaks the <strong>Hearth</strong> protocol, and runs on any <strong>host</strong> that meets a small <strong>node contract</strong>.</p>
+<h2 id="vocabulary">Vocabulary</h2>
 <div class="tablewrap"><table>
 <thead>
 <tr>
-<th>Name</th>
+<th>Term</th>
 <th>Means</th>
 <th>Is not</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Hearth</strong></td>
-<td>The wire contract between nodes. Tier-agnostic.</td>
-<td>An OS</td>
-</tr>
-<tr>
 <td><strong>BenixOS</strong></td>
-<td>One namespace, identity, placement and storage across every node a person or household owns. Runs on any host that meets the node contract.</td>
+<td>The distributed OS</td>
 <td>A Linux image</td>
 </tr>
 <tr>
-<td><strong>DeviceNix</strong></td>
-<td>The BenixOS-native host distro: a light, headless, A/B-updated Linux that makes owned hardware a BenixOS node.</td>
-<td>The system</td>
+<td><strong>Hearth</strong></td>
+<td>The wire contract between nodes</td>
+<td>An OS</td>
 </tr>
 <tr>
-<td><strong>Kits</strong></td>
-<td>The libraries both layers are built from.</td>
-<td>Products</td>
+<td><strong>Kit</strong></td>
+<td>A library that owns one domain, with an API others build on</td>
+<td>A product</td>
 </tr>
 <tr>
 <td><strong>Venue</strong></td>
-<td>The registry, planner and broker for resources in BenixOS, with a resident node agent.</td>
+<td>The registry, planner and ledger for places work can run</td>
 <td>The data path</td>
 </tr>
 <tr>
-<td><strong>Thunderhead</strong></td>
-<td>The reference-hardware category noun.</td>
-<td>A brand or an OS</td>
+<td><strong>Node</strong></td>
+<td>A claimed machine that runs a node agent</td>
+<td>Any machine on the network</td>
 </tr>
 <tr>
-<td><strong>Quickring</strong></td>
-<td>The commercial operator. A paid tier is a BenixOS <em>profile</em>.</td>
-<td>The OS</td>
+<td><strong>DeviceNix</strong></td>
+<td>The native host: a light, headless, A/B-updated Linux</td>
+<td>The system</td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="rules-that-are-locked">Rules that are locked</h2>
+<h2 id="principles">Principles</h2>
 <ul>
-<li><strong>BenixOS depends on Hearth. Hearth never depends on BenixOS.</strong> The Hearth conformance suite must pass with zero BenixOS code present (locked 22 August 2026).</li>
-<li><strong>Products compose Kits.</strong> Never fork Kit logic into a product.</li>
-<li><strong>Rust everywhere except the Flutter/Dart UI facade.</strong></li>
-<li><strong>SlashBuilder sells nothing.</strong> The open platform is substrate. Quickring is the commercial layer on top.</li>
-<li><strong>Licence.</strong> BenixOS is Apache-2.0.</li>
+<li><strong>BenixOS depends on Hearth. Hearth never depends on BenixOS.</strong> The Hearth conformance suite must pass with no BenixOS code present.</li>
+<li><strong>Products compose Kits.</strong> Kit logic is never forked into a product.</li>
+<li><strong>Rust throughout</strong>, except the Flutter and Dart UI facade.</li>
+<li><strong>Apache-2.0.</strong></li>
 </ul>
 <h2 id="what-benixos-is-not">What BenixOS is not</h2>
 <ul>
-<li><strong>Not a Linux distribution.</strong> That is DeviceNix, and it is one host among several.</li>
-<li><strong>Not a rewrite of Docker or Kubernetes.</strong> On a node today, containers are run by Docker. Venue follows Kubernetes' resource model on purpose (<a href="06-venue.html">6. Venue</a>).</li>
-<li><strong>Not a consumer product.</strong> Nothing here ships to a household as "BenixOS".</li>
-<li><strong>Not finished.</strong> See the State box on every page.</li>
+<li><strong>Not a Linux distribution.</strong> DeviceNix is one host among several.</li>
+<li><strong>Not a replacement for Docker or Kubernetes.</strong> Containers run on Docker. Venue follows the Kubernetes resource model.</li>
 </ul>
 <h2 id="lineage">Lineage</h2>
 <p>BenixOS borrows two ideas and no code.</p>
-<p><strong>From Plan 9, through Hearth.</strong> Hearth's wire protocol is described as "9P-inspired": not in encoding (it uses Protobuf) but in discipline. A small, fixed set of message types. Every request gets exactly one response, matched by a tag. Server pushes are a visibly separate category. Multi-step interactions use server-issued handles instead of new message types. The household's resources are addressed like a namespace: walk, read, write, invoke, watch.</p>
-<p><strong>From BeOS, through the Kit model.</strong> BeOS organised its API as a set of Kits over a set of servers over one kernel. BenixOS adopted that shape in May 2026: a kernel-sized platform of composable Kits with stable APIs. It keeps the organising idea without inheriting any BeOS code, ABI or the compatibility burden that binds Haiku to the original BeAPI.</p>
-<div class="callout callout-warning">
-<p class="callout-title">A promise the code does not yet keep</p>
-<p>BeOS's strength was that Kit APIs were stable. <strong>No BenixOS Kit is <code>stable</code>.</strong> Two are <code>pre-release</code> (Message Kit, Fabric Kit); the rest are alpha, banked or archived. The Kit layer is a boundary today, not yet a guarantee. See <a href="04-kits.html">4. Kits</a>.</p>
-</div>
-
-<h2 id="a-short-history-of-the-name">A short history of the name</h2>
-<div class="tablewrap"><table>
-<thead>
-<tr>
-<th>When</th>
-<th>What happened</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>By 2026-05</td>
-<td>"DeviceNix" names the headless edition of one OS (the earliest, BeagleBone-era work is in <code>devicenix-legacy/</code>).</td>
-</tr>
-<tr>
-<td>2026-05</td>
-<td>The Kit model is adopted, modelled on BeOS.</td>
-</tr>
-<tr>
-<td>22 August 2026</td>
-<td>DeviceNix is retired into BenixOS: "one OS, not three classes". The <code>core</code> Yocto build becomes "BenixOS".</td>
-</tr>
-<tr>
-<td>23 August 2026</td>
-<td>The SlashBuilder consolidation moves the Kits into <code>slash-builder/</code>.</td>
-</tr>
-<tr>
-<td><strong>2 November 2026</strong></td>
-<td><strong>The split.</strong> BenixOS becomes the distributed OS. DeviceNix is reclaimed for the host distro, with a different scope.</td>
-</tr>
-<tr>
-<td>11 November 2026/12</td>
-<td>The compose-first bootstrap and the Venue-led one-node bundle (<a href="13-one-node-bundle.html">chapter 13</a>).</td>
-</tr>
-</tbody>
-</table></div>
-<p>A reader who finds "DeviceNix" in <code>devicenix-legacy/</code> or an archived GitHub org is looking at the earlier BeagleBone-era use of the name.</p>
+<p><strong>Plan 9, through Hearth.</strong> The wire protocol keeps 9P's discipline: a small fixed set of message types, one response per request matched by a tag, pushes kept separate, and multi-step interactions carried by server-issued handles. Household resources are addressed like a namespace: walk, read, write, invoke, watch.</p>
+<p><strong>BeOS, through Kits.</strong> An API organised as Kits over servers over a kernel. BenixOS keeps that shape without inheriting any BeOS code or ABI.</p>
+<p>No Kit has a stable API yet. Until one does, the Kit layer is a boundary, not a guarantee.</p>
 <h2 id="next">Next</h2>
 <p><a href="02-architecture.html">2. Architecture</a></p>
 <div class="pager"><span></span><a href="02-architecture.html" rel="next">2. Architecture →</a></div>

@@ -2,18 +2,19 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>11. Hosts and DeviceNix · The BenixOS Book</title>
-<meta name="description" content="DeviceNix (slash-builder/core): Partial. It boots headless on AMD64; the A/B update plumbing exists; rollback has never been demonstrated. The base uplift (kirkstone to wrynose) is a draft PR. Other h">
+<meta name="description" content="DeviceNix: Partial. It boots headless on AMD64 and has A/B update plumbing. Rollback has never been demonstrated.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html" aria-current="page">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html" aria-current="page">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="11-hosts-and-devicenix">11. Hosts and DeviceNix</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>DeviceNix</strong> (<code>slash-builder/core</code>): <strong>Partial.</strong> It boots headless on AMD64; the A/B update plumbing exists; <strong>rollback has never been demonstrated</strong>. The base uplift (kirkstone to wrynose) is a draft PR. <strong>Other hosts:</strong> Ubuntu is what runs today; macOS and Windows are <strong>Draft</strong>.</p>
+<p><strong>DeviceNix: Partial.</strong> It boots headless on AMD64 and has A/B update plumbing. <strong>Rollback has never been demonstrated.</strong></p>
+<p><strong>Other hosts:</strong> Ubuntu is what runs today. macOS and Windows are <strong>Draft</strong>.</p>
 </div>
 
-<p>BenixOS runs on <strong>any host that meets the node contract</strong>. DeviceNix is one such host: the native one.</p>
+<p>BenixOS runs on <strong>any host that meets the node contract</strong>. DeviceNix is the native one.</p>
 <h2 id="devicenix">DeviceNix</h2>
 <p>A light, headless, A/B-updated Linux that makes owned hardware a BenixOS node. It covers hardware enablement, root of trust and update. It is <strong>not</strong> the system.</p>
 <div class="tablewrap"><table>
@@ -26,74 +27,53 @@
 <tbody>
 <tr>
 <td>Build</td>
-<td>Yocto: <code>meta-benixos</code>, <code>kas</code>, <code>meta-mender</code>, a manifest-driven production pipeline</td>
+<td>Yocto, with a <code>meta-benixos</code> layer and a manifest-driven pipeline</td>
 </tr>
 <tr>
 <td>C library</td>
-<td><strong>musl</strong> (a README elsewhere wrongly says glibc)</td>
+<td>musl</td>
 </tr>
 <tr>
 <td>Init</td>
-<td><strong>dinit</strong> (units for dockerd, qr-gateway, claim and mDNS exist)</td>
+<td><code>dinit</code></td>
 </tr>
 <tr>
 <td>Update</td>
-<td>A/B plumbing via Mender exists on AMD64; <strong>rollback not demonstrated</strong></td>
+<td>A/B plumbing exists on AMD64; rollback is not demonstrated</td>
 </tr>
 <tr>
-<td>CI</td>
-<td>A Jenkins pipeline; artifacts publish to an internal registry</td>
-</tr>
-<tr>
-<td>Host rule</td>
-<td>A node MUST NOT be able to brick itself; a rollback must be demonstrated before it claims "native host" (contract §11.1)</td>
+<td>Rule</td>
+<td>A node must not be able to brick itself. A rollback must be demonstrated before it claims "native host"</td>
 </tr>
 </tbody>
 </table></div>
-<h3 id="names-to-leave-alone">Names to leave alone</h3>
-<p>Do <strong>not</strong> rename <code>meta-benixos</code>, the <code>benix-*</code> artifact paths or <code>benixos-manifest.yaml</code>; a pending PR already churns them. A <strong>name-map note</strong> in <code>core</code> will list old and new meanings. Existing <code>benix-*</code> repo names stay. New repos use <code>benixos-&lt;thing&gt;</code> for the system and <code>devicenix-&lt;thing&gt;</code> for the host.</p>
-<h3 id="bring-up-plan">Bring-up plan</h3>
-<p>The standing plan (since 31 August 2026) is to <strong>build an all-in-one, maximally-instrumented AMD64 desktop image first</strong>, then subtract down into role-defined images. Three reasons:</p>
-<ul>
-<li>An all-in-one image is a desktop by another degree.</li>
-<li>It gives far more real-world debugging surface than a headless bring-up.</li>
-<li><code>Squall</code> (the Forge workstation) is already BenixOS's reference desktop.</li>
-</ul>
-<p>Since 2 November 2026 the Forge test machine <strong>stays on Ubuntu for now</strong>. DeviceNix proves itself on a <strong>QEMU virtual machine</strong>, with the rollback proof targeted there first. Moving the test machine to DeviceNix is a later swap.</p>
-<p><strong>Open:</strong> the Kconfig-style resolution that would let one all-in-one manifest subtract into per-device manifests is a separate, undesigned pass in <code>manifest-kit</code>. Whether desktop-first stands or is superseded is still to be confirmed; nothing in the first milestones depends on the answer.</p>
-<h3 id="pieces-around-it">Pieces around it</h3>
+<h3 id="bring-up">Bring-up</h3>
+<p>The plan is to build an <strong>all-in-one, heavily instrumented AMD64 desktop image first</strong>, then subtract down into role-defined images. An all-in-one image gives far more real-world debugging surface than a headless one. DeviceNix proves itself on a virtual machine, with the rollback proof first.</p>
+<h3 id="related-pieces">Related pieces</h3>
 <div class="tablewrap"><table>
 <thead>
 <tr>
 <th>Piece</th>
-<th>State</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>benix-base</code></td>
-<td><code>libbenix</code> (portable, four targets) plus an atomic kernel and libc bundle. README split: <code>libbenix</code> is a candidate node-contract primitive layer; the bundle is a DeviceNix build idea.</td>
+<td><code>libbenix</code></td>
+<td>Portable primitives, built for four targets; a candidate for the node contract's primitive layer</td>
 </tr>
 <tr>
-<td>Curated ABI shim</td>
-<td>A semi-stable shared library re-exporting libc plus kernel-primitive bindings, <strong>the one blessed dynamic-linking boundary</strong> (modelled on Haiku's <code>libroot.so</code>, not reusing the name). A design decision of 30 August 2026.</td>
+<td>Claim agent</td>
+<td>Device claim (<a href="05-nodes.html">Nodes</a>)</td>
 </tr>
 <tr>
-<td><code>benix-compositor</code></td>
-<td>Smithay kiosk compositor, Phase 1 MVP. PR #1 open since 1 September 2026. Parked.</td>
-</tr>
-<tr>
-<td><code>benix-mdns-advertiser</code></td>
-<td>Unclaimed-box discovery. Portable code; only its <code>dinit</code> unit is DeviceNix.</td>
-</tr>
-<tr>
-<td>Interface Kit, <code>mediakit</code></td>
-<td>The kiosk chrome and media handling. <code>mediakit</code> is dormant since July.</td>
+<td>mDNS advertiser</td>
+<td>Unclaimed-box discovery</td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="host-profiles-a-prompt-not-a-finding">Host profiles (a prompt, not a finding)</h2>
-<p>The contract's first-cut table, marked by its own author as "a prompt for the foreign-host study, not a finding":</p>
+<h2 id="host-profiles">Host profiles</h2>
+<p>A first cut, to be settled by testing:</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -102,7 +82,7 @@
 <th>Ubuntu</th>
 <th>macOS</th>
 <th>Windows</th>
-<th>Android / iOS</th>
+<th>Android and iOS</th>
 </tr>
 </thead>
 <tbody>
@@ -111,14 +91,14 @@
 <td>full</td>
 <td>full</td>
 <td>full, reduced</td>
-<td>client until the named-pipe transport exists</td>
+<td>client until a named-pipe transport exists</td>
 <td>client</td>
 </tr>
 <tr>
 <td>Agent supervision</td>
-<td>dinit, native</td>
-<td>systemd</td>
-<td>launchd</td>
+<td><code>dinit</code>, native</td>
+<td><code>systemd</code></td>
+<td><code>launchd</code></td>
 <td>Windows service, later</td>
 <td>n/a</td>
 </tr>
@@ -127,7 +107,7 @@
 <td>per image</td>
 <td>rootless Podman</td>
 <td>a VM backend only</td>
-<td>WSL2 or Docker Desktop</td>
+<td>WSL2 or a VM</td>
 <td>none</td>
 </tr>
 <tr>
@@ -150,45 +130,15 @@
 <td>Update</td>
 <td>A/B image</td>
 <td>OS package manager</td>
-<td>signed <code>.pkg</code></td>
+<td>signed package</td>
 <td><code>benix-update</code></td>
 <td>store</td>
 </tr>
-<tr>
-<td>Signing</td>
-<td>n/a</td>
-<td>none (TUF)</td>
-<td>Developer ID + notarisation (needs project credentials)</td>
-<td>Authenticode (needs project credentials)</td>
-<td>store accounts (needs project credentials)</td>
-</tr>
 </tbody>
 </table></div>
-<p>The bundle that runs today assumes <strong>Docker on a Linux host</strong>; the contract's rootless-Podman requirement is unreconciled with that (<a href="05-nodes.html">Nodes</a>).</p>
-<h2 id="thunderhead-hardware">Thunderhead hardware</h2>
-<p><strong>Thunderhead</strong> is the reference-hardware category, run as its own program. DeviceNix is the OS those devices eventually ship on.</p>
-<div class="tablewrap"><table>
-<thead>
-<tr>
-<th>Family</th>
-<th>What</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Aether</strong></td>
-<td>Raspberry Pi 5 / CM5</td>
-<td></td>
-</tr>
-<tr>
-<td><strong>Forge</strong></td>
-<td>AMD64 micro-ATX 244×244 mm</td>
-<td><strong>Squall</strong> is the reference desktop workstation; a Forge test machine is in the lab</td>
-</tr>
-</tbody>
-</table></div>
-<p>The five devices are Cumulus, Anvil, Wisp, Halcyon and Squall (which family each belongs to is the Thunderhead program's record, not this book's). The device ladder is Maker, Kit, Assembled, Production. The program is currently <strong>off-focus</strong>, so Thunderhead Kit is banked. DeviceNix consumes board bring-up and peripherals from there; it does not own them.</p>
+<p>The local bus uses <code>AF_UNIX SOCK_SEQPACKET</code>, which does not run on macOS. The proposed fix is length-prefixed framing over a stream socket carrying the same envelope bytes. Windows would use named pipes. <strong>Loopback TCP is not allowed for the agent</strong>: it has no peer identity.</p>
+<h2 id="reference-hardware">Reference hardware</h2>
+<p>Two reference families: a Raspberry Pi 5 and compute-module class, and an AMD64 micro-ATX class. DeviceNix consumes their board bring-up and peripheral support from a separate hardware program.</p>
 <h2 id="next">Next</h2>
 <p><a href="12-building-on-benixos.html">12. Building on BenixOS</a></p>
 <div class="pager"><a href="10-data-and-identity.html" rel="prev">← 10. Data and identity</a><a href="12-building-on-benixos.html" rel="next">12. Building on BenixOS →</a></div>

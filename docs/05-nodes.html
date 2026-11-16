@@ -2,75 +2,45 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>5. Nodes · The BenixOS Book</title>
-<meta name="description" content="Draft. The node contract v0 is a 16-section draft. It has not had an independent review, and most of it is not built. The claim flow is Built (works end to end on a VM; the TPM side is unverified). Th">
+<meta name="description" content="Draft. The node contract v0 is a 16-section draft that has not had an independent review. The claim flow is Built. The node agent exists only in a first, thin form (see Venue).">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html" aria-current="page">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html" aria-current="page">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="5-nodes">5. Nodes</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>Draft.</strong> The node contract v0 is a 16-section draft. It has not had an independent review, and most of it is not built. The claim flow is <strong>Built</strong> (works end to end on a VM; the TPM side is unverified). The node agent exists only in a first, thin form (see <a href="06-venue.html">Venue</a>).</p>
+<p><strong>Draft.</strong> The node contract v0 is a 16-section draft that has not had an independent review. The claim flow is <strong>Built</strong>. The node agent exists only in a first, thin form (see <a href="06-venue.html">Venue</a>).</p>
 </div>
 
-<h2 id="what-a-node-is">What a node is</h2>
 <p>A <strong>node</strong> is a machine, or a container, that runs a BenixOS <strong>node agent</strong> and has been <strong>claimed</strong> by an owner. The <strong>owner</strong> is the person whose key was pinned on the node at claim.</p>
-<p>A machine is a node when all four hold (contract §1):</p>
+<h2 id="what-makes-a-machine-a-node">What makes a machine a node</h2>
 <ol>
 <li>It runs the node agent as a supervised service.</li>
 <li>It holds a device key and has completed a claim that pinned an owner key.</li>
 <li>It is bound to exactly one authority registry, or declares itself standalone.</li>
-<li>It meets the host profile for its OS (<a href="11-hosts-and-devicenix.html">Hosts and DeviceNix</a>).</li>
+<li>It meets the host profile for its OS (<a href="11-hosts-and-devicenix.html">Hosts</a>).</li>
 </ol>
-<div class="tablewrap"><table>
-<thead>
-<tr>
-<th>Condition</th>
-<th>Today</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Claim</td>
-<td><strong>Built</strong>: <code>benix-claim-agent</code>, end to end on a VM</td>
-</tr>
-<tr>
-<td>Node agent</td>
-<td><strong>Partial</strong>: the executor <code>venue-node</code> (<a href="06-venue.html">chapter 6</a>), without signed placements or grants</td>
-</tr>
-<tr>
-<td>Registry binding</td>
-<td><strong>Draft</strong>: Venue today is one daemon with a file registry and bearer tokens</td>
-</tr>
-<tr>
-<td>Host profile</td>
-<td><strong>Draft</strong></td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="claiming">Claiming</h2>
-<p><code>benix-claim-agent</code> is a public repo that implements device claim: a <code>TPair</code> state machine, a LAN endpoint, and TPM binding. It straddles two layers. The state machine is BenixOS identity. The TPM, first-boot and <code>dinit</code> pieces are DeviceNix. The plan asks for a <strong>root-of-trust provider seam</strong> so a host without a TPM can still claim; it does not exist yet.</p>
-<p><strong>Discovery before claim.</strong> An <em>unclaimed</em> box advertises <code>_benixos._tcp</code> over mDNS so a client can find it. <code>benix-mdns-advertiser</code> does this and works. After claim, discovery is Venue's, which also browses <code>_venue._tcp</code>. Machines found by mDNS arrive in Venue <strong>pending</strong>, and are never nodes until an authoritative manager adopts them. <code>_hearth._tcp</code> is a discovery signal and <strong>never a trust signal</strong>.</p>
-<h2 id="identity-contract-2">Identity (contract §2)</h2>
+<p>Claim binds a device to an owner: a <code>TPair</code> state machine, a LAN endpoint, and TPM binding where a TPM exists. A host without a TPM needs a root-of-trust provider seam, which is not built.</p>
+<p><strong>Discovery before claim.</strong> An unclaimed box advertises <code>_benixos._tcp</code> over mDNS so a client can find it. After claim, discovery is Venue's. Machines found by mDNS arrive in Venue as <em>pending</em> and are never nodes until an authoritative manager adopts them. <code>_hearth._tcp</code> is a discovery signal, never a trust signal.</p>
+<h2 id="identity">Identity</h2>
 <ul>
-<li>A node <strong>MUST</strong> have a device key. Trust is never self-declared: the registry records the key, never a node's claim about itself.</li>
+<li>A node <strong>must</strong> have a device key. Trust is never self-declared: the registry records a node's key, never the node's claim about itself.</li>
 <li>At claim the node pins the <strong>owner's public key</strong> and the owner's account-log head. That pin is the root of every offline check.</li>
-<li>The claim produces <strong>one owner-signed binding record</strong>. It pins, as separate keys, the registry key, the distribution signer and the release channel, and it assigns the node's <strong>roles</strong>. Neither a channel nor mDNS can assign a role.</li>
-<li>A node <strong>MUST NOT</strong> accept an identity assertion from Keycloak or any realm as an input to a grant check.</li>
-<li>Where a TPM exists, the node SHOULD hold the TPM <code>lockoutAuth</code> as random, discarded bytes.</li>
+<li>The claim produces <strong>one owner-signed binding record</strong>. It pins, as separate keys, the registry key, the distribution signer and the release channel, and assigns the node's <strong>roles</strong>. Neither a channel nor mDNS can assign a role.</li>
+<li>A node <strong>must not</strong> accept an identity assertion from any identity provider as input to a grant check.</li>
 </ul>
-<p>State: the device key and claim are partly built; the owner's account log is <strong>Draft</strong> (the log format is proposed, and <code>account_id</code> still equals the Keycloak id).</p>
-<h2 id="registry-binding-4">Registry binding (§4)</h2>
+<h2 id="registry-binding">Registry binding</h2>
 <p>At claim the owner binds the node, by signature, to <strong>exactly one authority registry</strong> and pins that registry's key.</p>
 <ul>
-<li>Other registries may attach as <em>consumers</em>. They must not place work on the node. Federation is out of scope.</li>
+<li>Other registries may attach as consumers. They must not place work on the node. Federation is out of scope.</li>
 <li>The registry key is <strong>separate from the registry's TLS key</strong>.</li>
 <li>The owner key and device-root material <strong>must not live on the registry host</strong>.</li>
 <li><strong>If the registry is unreachable</strong>, existing leases run to expiry under each workload's partition policy, and <strong>no new placement happens</strong>.</li>
 </ul>
 <h2 id="roles-and-classes">Roles and classes</h2>
-<p>The owner-signed record assigns <strong>roles</strong>; a placement's group label is checked against them. Venue uses a role as a placement constraint (<em>where</em>); the agent checks it (<em>whether</em>).</p>
-<p>Two node classes:</p>
+<p>The owner-signed record assigns <strong>roles</strong>, and the agent checks a placement's group label against them.</p>
 <div class="tablewrap"><table>
 <thead>
 <tr>
@@ -82,30 +52,23 @@
 <tbody>
 <tr>
 <td><strong>Full</strong></td>
-<td>yes, hosts services</td>
-<td>DeviceNix box, Ubuntu server, macOS (reduced)</td>
+<td>Yes, hosts services</td>
+<td>A DeviceNix box, an Ubuntu server, macOS (reduced)</td>
 </tr>
 <tr>
 <td><strong>Client</strong></td>
-<td><strong>no</strong></td>
-<td>Phones, tablets, Windows until its transport exists. Hold keys, present grants, show the shell.</td>
+<td>No</td>
+<td>Phones, tablets; they hold keys, present grants and show the shell</td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="what-the-agent-must-not-hold-33">What the agent must not hold (§3.3)</h2>
-<p>The node agent MUST NOT hold: device-root material or the TPM <code>lockoutAuth</code>; unlock keys or session memory of any person; household or operator signing keys; Keycloak admin credentials; upstream service credentials; ssh keys to other nodes; an exec or shell path; policy loaded from the network; or any call to a Lockamy service.</p>
+<h2 id="what-the-agent-must-not-hold">What the agent must not hold</h2>
+<p>Device-root material or the TPM <code>lockoutAuth</code>; unlock keys or session memory of any person; household or operator signing keys; identity-provider admin credentials; upstream service credentials; ssh keys to other nodes; an exec or shell path; policy loaded from the network.</p>
 <h2 id="update-and-supervision">Update and supervision</h2>
 <ul>
-<li><strong>Two speeds.</strong> The host image (DeviceNix, A/B with a health-gated commit) and components (versioned containers and Kits). A node MUST NOT be able to brick itself: a rollback MUST have been demonstrated on a host profile before it claims "native host".</li>
-<li><strong>Supervision</strong> is a supervisor-agnostic contract: a start command, required environment, a health signal, readiness and watchdog signalling. A <code>dinit</code> unit, a <code>systemd --user</code> unit and a <code>launchd</code> job are thin wrappers. On DeviceNix the agent is a <strong>native service, not a container</strong>.</li>
+<li><strong>Two speeds:</strong> the host image (A/B, with a health-gated commit) and components (versioned containers and Kits). A node must not be able to brick itself: a rollback must be demonstrated on a host profile before it claims "native host".</li>
+<li><strong>Supervision</strong> is a supervisor-agnostic contract: a start command, required environment, a health signal, and readiness and watchdog signalling. A <code>dinit</code> unit, a <code>systemd</code> unit and a <code>launchd</code> job are thin wrappers. On DeviceNix the agent is a native service, not a container.</li>
 </ul>
-<div class="callout callout-warning">
-<p class="callout-title">A conflict the draft has not resolved</p>
-<p>The contract says the agent runs as a <strong>dedicated non-root user</strong> under <strong>rootless Podman</strong>, and is <strong>not in the <code>docker</code> group</strong>. The compose bundle that exists today puts the executor in a container with the <strong>Docker socket mounted</strong>, which is root-equivalent on the host. This is an open decision. See <a href="14-security-model.html">The security model</a>.</p>
-</div>
-
-<h2 id="conformance">Conformance</h2>
-<p>The first node conformance tests are the M1 and M2 milestone exit tests (<a href="15-status-and-roadmap.html">Status and roadmap</a>): a path-spelling table, placement signature and fencing checks, and a partition-policy exercise. A <code>node-conformance</code> suite is meant to live in <code>spec-kit</code>, beside the Hearth suite. Neither exists.</p>
 <h2 id="next">Next</h2>
 <p><a href="06-venue.html">6. Venue</a></p>
 <div class="pager"><a href="04-kits.html" rel="prev">← 4. Kits</a><a href="06-venue.html" rel="next">6. Venue →</a></div>
