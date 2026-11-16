@@ -21,7 +21,10 @@ The site is built from [`content/`](content/) into [`docs/`](docs/) and served a
 python3 -m pip install markdown pyyaml
 make build     # content/ and assets/ into docs/
 make serve     # http://localhost:8000
+make validate  # check the live site against docs/
 ```
+
+See [PUBLISHING.md](PUBLISHING.md) for how the site is hosted, updated and validated.
 
 The build fails if the output contains a person's name, a vault or wiki link, an internal hostname or tracker key, or a local link that does not resolve.
 
