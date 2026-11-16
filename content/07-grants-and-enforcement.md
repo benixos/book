@@ -32,6 +32,10 @@ The spellings a parser must survive include `//`, `.`, `..`, `%2e`, `%2f`, doubl
 - Attenuation may **only narrow**: fewer operations, a longer prefix, an earlier expiry. It is checkable offline.
 - Revocation is **short-lived grants plus a node-local revocation list**. The revocation SLA is the grant's TTL.
 
+## Consent and grant requests
+
+An owner approves a grant through consent that an app cannot forge. The loader signs a **grant request**, a presenter shows it from its own template, and after a fresh gesture a separate **signer** issues the grant ([Presenters](13-presenters.html)). The signer holds only an attenuated delegate key and re-derives the consent text from the request bytes.
+
 ## Placement checks
 
 For each placement the agent checks:

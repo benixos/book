@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>13. The security model · The BenixOS Book</title>
+<title>14. The security model · The BenixOS Book</title>
 <meta name="description" content="A design with a small built core. Built: the executor&#x27;s default-deny policy, container identity and lease handling, and a signed-channel prototype with throwaway keys. Draft: owner-signed grants, sign">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html" aria-current="page">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html">13. Presenters</a></li><li class="grp">Practice</li><li><a href="14-security-model.html" aria-current="page">14. The security model</a></li><li><a href="15-status.html">15. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
-<h1 id="13-the-security-model">13. The security model</h1>
+<h1 id="14-the-security-model">14. The security model</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
 <p><strong>A design with a small built core.</strong> Built: the executor's default-deny policy, container identity and lease handling, and a signed-channel prototype with throwaway keys. <strong>Draft:</strong> owner-signed grants, signed placements, sealing of node messages and typed addresses. This page summarises the design; it is not a threat model.</p>
@@ -22,7 +22,8 @@
 <li><strong>Separate keys for separate jobs:</strong> owner key, registry key, distribution signer, release channel and device key.</li>
 <li><strong>The owner key and device-root material never live on the registry host.</strong></li>
 <li><strong>No identity provider is an input to a grant check.</strong></li>
-<li><strong>The transport is untrusted.</strong> A channel or mirror is static files, and the hub carries sealed frames.</li>
+<li><strong>The transport is untrusted, and never an authorization input.</strong> A channel or mirror is static files, the hub carries sealed frames, and a direct path bypasses the hub's revocation check.</li>
+<li><strong>An app never emits anything a presenter treats as trusted.</strong> Consent is built outside the app.</li>
 </ol>
 <h2 id="trust-boundaries">Trust boundaries</h2>
 <div class="tablewrap"><table>
@@ -68,6 +69,16 @@
 <td>Publisher to node</td>
 <td>Releases</td>
 <td>Threshold signatures, freshness, no rollback, hash and length</td>
+</tr>
+<tr>
+<td>Loader to presenter</td>
+<td>App frames</td>
+<td>An origin binding (node key, component digest, placement id, nonce) signed inside the sealed payload</td>
+</tr>
+<tr>
+<td>Presenter to signer</td>
+<td>Grant requests</td>
+<td>The signer re-derives the consent text from the bytes and issues single-use challenges</td>
 </tr>
 </tbody>
 </table></div>
@@ -131,11 +142,41 @@
 <td>A separate process group and cleared environment only</td>
 <td>Gap</td>
 </tr>
+<tr>
+<td><strong>A hostile component</strong></td>
+<td>No ambient authority; bounded CPU and memory; one process per instance</td>
+<td>Prototype</td>
+</tr>
+<tr>
+<td><strong>A hostile tree crashes the presenter</strong></td>
+<td>A non-recursive wire form, with depth and size enforced while reading</td>
+<td>Draft</td>
+</tr>
+<tr>
+<td><strong>An app fakes a consent screen</strong></td>
+<td>The consent kind is reserved; consent is rendered from the presenter's own template</td>
+<td>Draft</td>
+</tr>
+<tr>
+<td><strong>In-app phishing</strong> (chrome shows who, not what)</td>
+<td>A rule is needed: presenter-owned secret inputs or a visible warning</td>
+<td>Gap</td>
+</tr>
+<tr>
+<td><strong>A compromised presenter lies about what it showed</strong></td>
+<td>A trusted display path from the host's secure UI</td>
+<td>Gap</td>
+</tr>
+<tr>
+<td><strong>A tag re-pushed to different bytes</strong></td>
+<td>Pin the manifest digest at admission</td>
+<td>Draft</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="next">Next</h2>
-<p><a href="14-status.html">14. Status</a></p>
-<div class="pager"><a href="12-building-on-benixos.html" rel="prev">← 12. Building on BenixOS</a><a href="14-status.html" rel="next">14. Status →</a></div>
+<p><a href="15-status.html">15. Status</a></p>
+<div class="pager"><a href="13-presenters.html" rel="prev">← 13. Presenters</a><a href="15-status.html" rel="next">15. Status →</a></div>
 <footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
 </main></div>
 <script src="assets/site.js" defer></script>

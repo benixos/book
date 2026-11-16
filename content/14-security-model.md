@@ -1,8 +1,8 @@
 ---
-title: "13. The security model"
+title: "14. The security model"
 ---
 
-# 13. The security model
+# 14. The security model
 
 > [!info] State
 > **A design with a small built core.** Built: the executor's default-deny policy, container identity and lease handling, and a signed-channel prototype with throwaway keys. **Draft:** owner-signed grants, signed placements, sealing of node messages and typed addresses. This page summarises the design; it is not a threat model.
@@ -16,7 +16,8 @@ title: "13. The security model"
 5. **Separate keys for separate jobs:** owner key, registry key, distribution signer, release channel and device key.
 6. **The owner key and device-root material never live on the registry host.**
 7. **No identity provider is an input to a grant check.**
-8. **The transport is untrusted.** A channel or mirror is static files, and the hub carries sealed frames.
+8. **The transport is untrusted, and never an authorization input.** A channel or mirror is static files, the hub carries sealed frames, and a direct path bypasses the hub's revocation check.
+9. **An app never emits anything a presenter treats as trusted.** Consent is built outside the app.
 
 ## Trust boundaries
 
@@ -29,6 +30,8 @@ title: "13. The security model"
 | Executor to Docker | Container specs | Local default-deny policy; the socket only in the executor |
 | Node to upstream service | Invokes | Typed addresses; scheme, host, port and prefix asserted |
 | Publisher to node | Releases | Threshold signatures, freshness, no rollback, hash and length |
+| Loader to presenter | App frames | An origin binding (node key, component digest, placement id, nonce) signed inside the sealed payload |
+| Presenter to signer | Grant requests | The signer re-derives the consent text from the bytes and issues single-use challenges |
 
 ## Threats and controls
 
@@ -44,7 +47,13 @@ title: "13. The security model"
 | **Remote code execution over the LAN, by design** | Pinned TLS and a token suit the owner's own machines only; signed placements and grants come first | Mutual-TLS link built, simulated only |
 | **A workload escapes or exfiltrates** | Read-only root, dropped capabilities, non-root uid, isolated network | Built; egress is open |
 | **Binary services have no sandbox** | A separate process group and cleared environment only | Gap |
+| **A hostile component** | No ambient authority; bounded CPU and memory; one process per instance | Prototype |
+| **A hostile tree crashes the presenter** | A non-recursive wire form, with depth and size enforced while reading | Draft |
+| **An app fakes a consent screen** | The consent kind is reserved; consent is rendered from the presenter's own template | Draft |
+| **In-app phishing** (chrome shows who, not what) | A rule is needed: presenter-owned secret inputs or a visible warning | Gap |
+| **A compromised presenter lies about what it showed** | A trusted display path from the host's secure UI | Gap |
+| **A tag re-pushed to different bytes** | Pin the manifest digest at admission | Draft |
 
 ## Next
 
-[14. Status](14-status.html)
+[15. Status](15-status.html)

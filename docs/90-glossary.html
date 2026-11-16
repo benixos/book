@@ -5,7 +5,7 @@
 <meta name="description" content="The BenixOS Book">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html" aria-current="page">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html">13. Presenters</a></li><li class="grp">Practice</li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status.html">15. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html" aria-current="page">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="glossary">Glossary</h1>
 <div class="tablewrap"><table>
@@ -29,6 +29,10 @@
 <td>The distributed OS: one namespace, identity, placement and storage across a person's or household's nodes</td>
 </tr>
 <tr>
+<td><strong>Casement</strong></td>
+<td>The reference window-class presenter. A server, not a Kit</td>
+</tr>
+<tr>
 <td><strong>Channel</strong></td>
 <td>A folder of signed release files, served by any web server; not trusted</td>
 </tr>
@@ -41,8 +45,16 @@
 <td>A node that holds keys and presents grants but hosts no services and holds no leases</td>
 </tr>
 <tr>
+<td><strong>Component</strong></td>
+<td>A WebAssembly component: the primary form of an app written against Kits</td>
+</tr>
+<tr>
 <td><strong>Conformance suite</strong></td>
 <td>Tests a Hearth implementation, or a node, must pass</td>
+</tr>
+<tr>
+<td><strong>Consent</strong></td>
+<td>A grant approval shown by a presenter from its own template, never by an app</td>
 </tr>
 <tr>
 <td><strong>D (message)</strong></td>
@@ -81,6 +93,10 @@
 <td>An owner-signed, typed, attenuable, offline-verifiable permission to use or egress a resource</td>
 </tr>
 <tr>
+<td><strong>Grant request</strong></td>
+<td>A signed statement that a component on a node requests a typed resource, operations and a TTL</td>
+</tr>
+<tr>
 <td><strong>Hearth</strong></td>
 <td>The open wire protocol for distributed personal resources</td>
 </tr>
@@ -111,6 +127,10 @@
 <tr>
 <td><strong>libbenix</strong></td>
 <td>The portable primitive library</td>
+</tr>
+<tr>
+<td><strong>Loader</strong></td>
+<td>The per-host process that runs a component, one process per instance, and attests its digest</td>
 </tr>
 <tr>
 <td><strong>Lock</strong></td>
@@ -149,6 +169,18 @@
 <td>Proof of possession of a device key</td>
 </tr>
 <tr>
+<td><strong>Presenter</strong></td>
+<td>The server that renders an app's interface, routes input and mediates consent</td>
+</tr>
+<tr>
+<td><strong>Presenter class</strong></td>
+<td><em>Window class</em> (multi-window) or <em>pane class</em> (a single pane)</td>
+</tr>
+<tr>
+<td><strong>Presenter spec</strong></td>
+<td>The open specification of what an app may say to a presenter</td>
+</tr>
+<tr>
 <td><strong>R (message)</strong></td>
 <td>A server response to a T, with the same tag</td>
 </tr>
@@ -161,16 +193,20 @@
 <td>The hash of a lock's contents</td>
 </tr>
 <tr>
-<td><strong>Roster</strong></td>
-<td>The household's list of devices, attested and read by devices</td>
-</tr>
-<tr>
 <td><strong>Role</strong></td>
 <td>An owner-signed assignment of what a node may do</td>
 </tr>
 <tr>
+<td><strong>Roster</strong></td>
+<td>The household's list of devices, attested and read by devices</td>
+</tr>
+<tr>
 <td><strong>Sealed payload</strong></td>
 <td>An end-to-end encrypted Hearth payload that the hub cannot read</td>
+</tr>
+<tr>
+<td><strong>Signer</strong></td>
+<td>The separate process, holding an attenuated delegate key, that issues grants after consent</td>
 </tr>
 <tr>
 <td><strong>T (message)</strong></td>
@@ -179,6 +215,10 @@
 <tr>
 <td><strong>Tag</strong></td>
 <td>The per-message correlation id</td>
+</tr>
+<tr>
+<td><strong>Trusted display path</strong></td>
+<td>The host's secure UI, which a compromised presenter cannot fake</td>
 </tr>
 <tr>
 <td><strong>Typed address</strong></td>
@@ -194,7 +234,7 @@
 </tr>
 </tbody>
 </table></div>
-<div class="pager"><a href="14-status.html" rel="prev">← 14. Status</a><a href="about.html" rel="next">About this book →</a></div>
+<div class="pager"><a href="15-status.html" rel="prev">← 15. Status</a><a href="about.html" rel="next">About this book →</a></div>
 <footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
 </main></div>
 <script src="assets/site.js" defer></script>

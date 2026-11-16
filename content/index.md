@@ -32,10 +32,11 @@ BenixOS is a distributed operating system. It is composed of Kits, speaks the He
 ### Underneath and on top
 11. [Hosts and DeviceNix](11-hosts-and-devicenix.html)
 12. [Building on BenixOS](12-building-on-benixos.html)
+13. [Presenters](13-presenters.html)
 
 ### Practice
-13. [The security model](13-security-model.html)
-14. [Status](14-status.html)
+14. [The security model](14-security-model.html)
+15. [Status](15-status.html)
 
 ### Reference
 - [Glossary](90-glossary.html)

@@ -2,15 +2,15 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>12. Building on BenixOS · The BenixOS Book</title>
-<meta name="description" content="App Context Kit: alpha. How a third party would package and publish an app is Draft.">
+<meta name="description" content="Wasm components: Draft. A prototype runs a component with no ambient authority under a loader. Containers: Built. App Context Kit: alpha. How a third party would package and publish an app is Draft.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html" aria-current="page">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html" aria-current="page">12. Building on BenixOS</a></li><li><a href="13-presenters.html">13. Presenters</a></li><li class="grp">Practice</li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status.html">15. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="12-building-on-benixos">12. Building on BenixOS</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>App Context Kit: alpha.</strong> How a third party would package and publish an app is <strong>Draft</strong>.</p>
+<p><strong>Wasm components: Draft.</strong> A prototype runs a component with no ambient authority under a loader. <strong>Containers: Built.</strong> <strong>App Context Kit: alpha.</strong> How a third party would package and publish an app is Draft.</p>
 </div>
 
 <h2 id="what-can-run-on-a-node">What can run on a node</h2>
@@ -19,30 +19,69 @@
 <tr>
 <th>Kind</th>
 <th>Delivered as</th>
+<th>For</th>
 <th>State</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><strong>A Wasm component</strong></td>
+<td>An OCI artifact, pinned by manifest digest</td>
+<td><strong>Apps written against Kits</strong> (the primary form)</td>
+<td>Draft</td>
+</tr>
+<tr>
 <td><strong>A container</strong></td>
-<td>An OCI image pinned by digest</td>
+<td>An OCI image, pinned by digest</td>
+<td>Ported software</td>
 <td><strong>Built</strong>: the executor runs it under local policy</td>
 </tr>
 <tr>
-<td><strong>A binary</strong></td>
-<td>A signed artifact, only if the operator allows</td>
-<td><strong>Prototype</strong>, in the distribution mechanism</td>
+<td><strong>A system binary</strong></td>
+<td>An artifact signed by the system</td>
+<td>Components of BenixOS itself</td>
+<td>Prototype</td>
 </tr>
 <tr>
 <td><strong>A service behind the gateway</strong></td>
 <td>A glue plus the upstream service</td>
+<td>Existing household services</td>
 <td><strong>Built</strong>, outside Venue</td>
 </tr>
 </tbody>
 </table></div>
-<p>A workload's language is not the OS's concern. The OS runs it.</p>
+<p>A container's contents are the OS's business only at the boundary. An app written against Kits is a component.</p>
+<h2 id="an-app-is-a-component">An app is a component</h2>
+<p>A component is a single artifact, about 100 KB for a minimal one, built with the standard toolchain for <code>wasm32-wasip2</code>. It runs with <strong>no ambient authority</strong>:</p>
+<ul>
+<li>The filesystem, environment, arguments and network are denied.</li>
+<li>The clock is allowed, by design.</li>
+<li>CPU is bounded by fuel, and memory by a cap.</li>
+</ul>
+<p>The app's <strong>only way out</strong> is one endpoint on the node-local bus. It sends and receives opaque frames, and the grammar of those frames is the <a href="13-presenters.html">presenter spec</a>. Frames speak the gateway's namespace operations, so an app reaches household resources the same way any other client does.</p>
+<pre><code class="language-text">interface endpoint {
+  send: func(frame: list&lt;u8&gt;);
+}
+
+world app {
+  import endpoint;
+  export start: func();
+  export deliver: func(frame: list&lt;u8&gt;);
+}
+</code></pre>
+<p>The model is reactive: the loader calls <code>deliver</code> for each frame. Clocks and randomness stay as standard imports. WASI 0.3 is ratified, but the Rust toolchain for it is not ready, and the app model does not need async yet.</p>
+<h3 id="the-loader">The loader</h3>
+<p>A per-host <strong>loader</strong> runs one process per component instance.</p>
+<ul>
+<li><strong>A crash or a spin kills only that process.</strong> A sibling app keeps serving.</li>
+<li><strong>Identity is attested.</strong> The loader hashes the exact bytes it loads and checks the kernel-reported peer credentials of the connection.</li>
+<li><strong>Round trips across the node-local bus are fast enough for interactive use.</strong> Launch time is dominated by compilation, which a cache would remove.</li>
+</ul>
+<h3 id="packaging">Packaging</h3>
+<p>A component is an <strong>OCI artifact</strong>: an empty config, a wasm layer and a detached signature layer. Registry and digest pinning is the whole distribution story for components.</p>
+<p><strong>Pin the manifest digest at admission, not the tag.</strong> A tag can be re-pushed with a publisher's valid signature and point at different bytes. The digest still names the original.</p>
 <h2 id="app-context-kit">App Context Kit</h2>
-<p>One spec, two implementations (a Dart core with a Flutter companion, and a Rust crate), both held to <strong>shared conformance fixtures</strong>. It gives an app:</p>
+<p>One spec, held to shared conformance fixtures. It gives an app:</p>
 <ul>
 <li>an <strong>identity</strong>,</li>
 <li><strong>directories and settings</strong>, with <strong>test and scratch modes</strong>,</li>
@@ -84,15 +123,12 @@
 <td>Inference Kit</td>
 </tr>
 <tr>
-<td>UI</td>
-<td>Interface Kit</td>
-</tr>
-<tr>
 <td>A workflow strip</td>
 <td>Work Strip Kit</td>
 </tr>
 </tbody>
 </table></div>
+<p>An app's interface is not a Kit. The app describes it, and a <a href="13-presenters.html">presenter</a> renders it.</p>
 <h2 id="what-a-workload-needs-from-the-node">What a workload needs from the node</h2>
 <p>A small, read-only web service is a useful test of the mechanism. It forces the gaps that matter.</p>
 <div class="tablewrap"><table>
@@ -126,8 +162,8 @@
 </tbody>
 </table></div>
 <h2 id="next">Next</h2>
-<p><a href="13-security-model.html">13. The security model</a></p>
-<div class="pager"><a href="11-hosts-and-devicenix.html" rel="prev">← 11. Hosts and DeviceNix</a><a href="13-security-model.html" rel="next">13. The security model →</a></div>
+<p><a href="13-presenters.html">13. Presenters</a></p>
+<div class="pager"><a href="11-hosts-and-devicenix.html" rel="prev">← 11. Hosts and DeviceNix</a><a href="13-presenters.html" rel="next">13. Presenters →</a></div>
 <footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
 </main></div>
 <script src="assets/site.js" defer></script>

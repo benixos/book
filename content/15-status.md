@@ -1,8 +1,8 @@
 ---
-title: "14. Status"
+title: "15. Status"
 ---
 
-# 14. Status
+# 15. Status
 
 > [!info] State
 > A snapshot at **15 November 2026**. Where this page and a repository disagree, the repository is right.
@@ -23,6 +23,9 @@ title: "14. Status"
 | Inference Kit | Alpha |
 | DeviceNix | Partial: boots headless; rollback not shown |
 | Node contract v0 | Draft |
+| Presenter spec and core | Draft; exercised by a local prototype |
+| Wasm loader and signer | Prototype |
+| Window shell (Casement) | Planned; prototype pieces exist |
 
 ## Not yet built
 
@@ -34,6 +37,11 @@ title: "14. Status"
 - Real key custody for distribution signing
 - A demonstrated DeviceNix rollback
 - A stable API on any Kit
+- A frozen presenter spec, and a presenter with a live window
+- A trusted display path on any host
+- Independent presenter and signer implementations
+- A direct path across the WAN
+- A production toolchain for asynchronous components
 
 ## How to read the labels
 

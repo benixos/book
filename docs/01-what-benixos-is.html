@@ -5,12 +5,12 @@
 <meta name="description" content="Partial. The definition and vocabulary are settled. The system is partly built; see Status.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html" aria-current="page">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-security-model.html">13. The security model</a></li><li><a href="14-status.html">14. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html" aria-current="page">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html">13. Presenters</a></li><li class="grp">Practice</li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status.html">15. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="1-what-benixos-is">1. What BenixOS is</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>Partial.</strong> The definition and vocabulary are settled. The system is partly built; see <a href="14-status.html">Status</a>.</p>
+<p><strong>Partial.</strong> The definition and vocabulary are settled. The system is partly built; see <a href="15-status.html">Status</a>.</p>
 </div>
 
 <p>BenixOS is a distributed operating system: one namespace, identity, placement and storage across every machine a person or household owns. It is composed of <strong>Kits</strong>, speaks the <strong>Hearth</strong> protocol, and runs on any <strong>host</strong> that meets a small <strong>node contract</strong>.</p>
@@ -45,6 +45,11 @@
 <td>The data path</td>
 </tr>
 <tr>
+<td><strong>Presenter</strong></td>
+<td>The server that renders an app's interface and mediates consent</td>
+<td>The app</td>
+</tr>
+<tr>
 <td><strong>Node</strong></td>
 <td>A claimed machine that runs a node agent</td>
 <td>Any machine on the network</td>
@@ -60,7 +65,7 @@
 <ul>
 <li><strong>BenixOS depends on Hearth. Hearth never depends on BenixOS.</strong> The Hearth conformance suite must pass with no BenixOS code present.</li>
 <li><strong>Products compose Kits.</strong> Kit logic is never forked into a product.</li>
-<li><strong>Rust throughout</strong>, except the Flutter and Dart UI facade.</li>
+<li><strong>Rust for the system.</strong> Apps are Wasm components, and can be written in any language that targets them.</li>
 <li><strong>Apache-2.0.</strong></li>
 </ul>
 <h2 id="what-benixos-is-not">What BenixOS is not</h2>
@@ -71,7 +76,7 @@
 <h2 id="lineage">Lineage</h2>
 <p>BenixOS borrows two ideas and no code.</p>
 <p><strong>Plan 9, through Hearth.</strong> The wire protocol keeps 9P's discipline: a small fixed set of message types, one response per request matched by a tag, pushes kept separate, and multi-step interactions carried by server-issued handles. Household resources are addressed like a namespace: walk, read, write, invoke, watch.</p>
-<p><strong>BeOS, through Kits.</strong> An API organised as Kits over servers over a kernel. BenixOS keeps that shape without inheriting any BeOS code or ABI.</p>
+<p><strong>BeOS, through Kits and presenters.</strong> An API organised as Kits over servers over a kernel, with a server that owns the interface. BenixOS keeps that shape without inheriting any BeOS code or ABI. Its presenter is the <code>app_server</code> idea cut at semantics.</p>
 <p>No Kit has a stable API yet. Until one does, the Kit layer is a boundary, not a guarantee.</p>
 <h2 id="next">Next</h2>
 <p><a href="02-architecture.html">2. Architecture</a></p>

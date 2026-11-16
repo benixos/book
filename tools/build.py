@@ -42,6 +42,7 @@ FORBIDDEN = [
     (r"slash-builder|benixos/(benixos|distribution|book)\b", "internal repository path"),
     (r"\b(Keycloak|Jellyfin|Pi-hole|Frigate|Home Assistant|Haiku)\b", "third-party product name"),
     (r"\b(MVP-?[AB]|milestone|roadmap|Jira|ruling|ruled)\b", "internal planning language"),
+    (r"\b(Flutter|Dart)\b", "UI toolkit reference (removed from the public edition)"),
 ]
 
 GROUPS = {
@@ -50,7 +51,8 @@ GROUPS = {
     "05": "The system", "06": "The system", "07": "The system", "08": "The system",
     "09": "The system", "10": "The system",
     "11": "Underneath and on top", "12": "Underneath and on top",
-    "13": "Practice", "14": "Practice", "15": "Practice", "16": "Practice",
+    "13": "Underneath and on top",
+    "14": "Practice", "15": "Practice",
     "90": "Reference",
 }
 
