@@ -1,8 +1,8 @@
 ---
-title: "13. The security model"
+title: "15. The security model"
 ---
 
-# 13. The security model
+# 15. The security model
 
 > [!info] State
 > **A design with a small built core.** Built: the executor's default-deny policy, container identity and lease handling, and a signed-channel prototype with throwaway keys. **Draft:** owner-signed grants, signed placements, sealing of node messages and typed addresses. This page summarises the design; it is not a threat model.
@@ -16,7 +16,8 @@ title: "13. The security model"
 5. **Separate keys for separate jobs:** owner key, registry key, distribution signer, release channel and device key.
 6. **The owner key and device-root material never live on the registry host.**
 7. **No identity provider is an input to a grant check.**
-8. **The transport is untrusted.** A channel or mirror is static files, and the hub carries sealed frames.
+8. **The transport is untrusted, and never an authorization input.** A channel or mirror is static files, the hub carries sealed frames, and a direct path bypasses the hub's revocation check.
+9. **An app never emits anything a presenter treats as trusted.** Consent is built outside the app.
 
 ## Trust boundaries
 
@@ -29,6 +30,8 @@ title: "13. The security model"
 | Executor to Docker | Container specs | Local default-deny policy; the socket only in the executor |
 | Node to upstream service | Invokes | Typed addresses; scheme, host, port and prefix asserted |
 | Publisher to node | Releases | Threshold signatures, freshness, no rollback, hash and length |
+| Loader to presenter | App frames | An origin binding (node key, component digest, placement id, nonce) signed inside the sealed payload |
+| Presenter to signer | Grant requests | The signer re-derives the consent text from the bytes and issues single-use challenges |
 
 ## Threats and controls
 
@@ -41,10 +44,21 @@ title: "13. The security model"
 | **Path spellings that slip a grant** | Parse once into a typed value; assert the upstream request | Draft |
 | **Replay of a placement** | Fencing token, registry incarnation, a high-water mark on disk | Draft |
 | **A partitioned registry** | Partition policy per workload; no new placement | Draft |
-| **Remote code execution over the LAN, by design** | Pinned TLS and a token suit the owner's own machines only; signed placements and grants come first | Mutual-TLS link built, simulated only |
+| **Remote code execution over the LAN, by design** | Pinned TLS and a token suit the owner's own machines only; signed placements and grants come first | Mutual-TLS link running on a lab cluster; independent re-review pending |
 | **A workload escapes or exfiltrates** | Read-only root, dropped capabilities, non-root uid, isolated network | Built; egress is open |
 | **Binary services have no sandbox** | A separate process group and cleared environment only | Gap |
+| **A hostile component** | No ambient authority; bounded CPU and memory; one process per instance | Prototype |
+| **A hostile tree crashes the presenter** | A non-recursive wire form, with depth and size enforced at decode before anything is allocated; the renderer is isolated per instance | Prototype |
+| **An app fakes a consent screen** | The consent kind is reserved; consent is rendered from structured fields the compositor owns | Prototype |
+| **A name reads as part of the request** (injected text or look-alike characters) | Structured fields and a name profile | Prototype |
+| **A malicious tree exploits the renderer** | One sandboxed process per instance, outside the trusted base, which refuses to run unsandboxed | Prototype; shares the user's id |
+| **An observer links a device by its LAN advertisement** | A rotating identifier keyed by a household secret | Prototype |
+| **In-app phishing** (chrome shows who, not what) | A rule is needed: presenter-owned secret inputs or a visible warning | Gap |
+| **A compromised presenter lies about what it showed** | A trusted display path: the presenter owns the display and input (a full-trust host). Elsewhere, a reduced-trust class with read-only, short-lived grants | Gap: no build earns full trust yet |
+| **A tag re-pushed to different bytes** | Pin the manifest digest at admission | Draft |
+| **A revoked device keeps a live session** | Revocation ends live sessions, not only future handshakes | Prototype |
+| **A spoofed sender on a remote message** | A signed sender device id, verified against the authenticated device | Prototype |
 
 ## Next
 
-[14. Status](14-status.html)
+[16. Status](16-status.html)

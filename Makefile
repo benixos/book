@@ -1,4 +1,4 @@
-.PHONY: build serve check validate
+.PHONY: build serve check validate diagram
 build:
 	python3 -I tools/build.py
 check: build
@@ -7,3 +7,5 @@ serve: build
 	cd docs && python3 -m http.server 8000
 validate:
 	python3 -I tools/validate_live.py
+diagram:
+	python3 -I tools/make_diagram.py

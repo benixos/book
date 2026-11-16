@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13. Presenters · The BenixOS Book</title>
+<meta name="description" content="Draft. The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a load">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html" aria-current="page">13. Presenters</a></li><li><a href="14-presenter-trust.html">14. Presenter trust</a></li><li class="grp">Practice</li><li><a href="15-security-model.html">15. The security model</a></li><li><a href="16-status.html">16. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="13-presenters">13. Presenters</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p><strong>Draft.</strong> The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a loader, a presenter core, a separate signer, an owner-signed roster, a LAN peer link, a headless compositor, and a sandboxed renderer in the real path. <strong>No presenter ships yet.</strong> How a presenter earns trust is in <a href="14-presenter-trust.html">Presenter trust</a>.</p>
+</div>
+
+<p>Apps do not draw. They describe their interface in terms of meaning, and a <strong>presenter</strong> renders it. The presenter owns widgets, layout, text editing, accessibility, theming, the window tree, focus and input routing. It also mediates the clipboard, drag and drop, and capture.</p>
+<p>This is the BeOS <code>app_server</code> ownership model, cut at semantics instead of drawing commands.</p>
+<h2 id="the-presenter-spec">The presenter spec</h2>
+<p>The <strong>presenter spec</strong> is open and owned by BenixOS. It defines what an app may say and what a presenter must do with it.</p>
+<ul>
+<li><strong>Semantic only in v1.</strong> Apps send a tree of meaningful elements, not pixels. Canvas and surface tiers are deferred extensions, each needing its own review.</li>
+<li><strong>Scenes, not windows.</strong> A window-class presenter maps a scene to an OS window. A pane-class presenter maps it to a navigation destination.</li>
+<li><strong>Responsive layout is mandatory</strong>, so one tree serves both classes.</li>
+<li><strong>Conformance profiles</strong> are negotiated per mounted view: Core first, then Canvas, Surface and Windowing.</li>
+<li><strong>Text editing, scrolling and list pulls happen inside the presenter.</strong> The app sees commits.</li>
+</ul>
+<p>The <strong>headless presenter core</strong> is Apache-2.0 and shared by every presenter. It is a library with a small C interface, so a shell in any language can host it.</p>
+<h2 id="presenter-classes">Presenter classes</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Shape</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Window class</strong></td>
+<td>Multi-window; owns the window tree</td>
+<td>A desktop shell on Linux (as a compositor), macOS and Windows</td>
+</tr>
+<tr>
+<td><strong>Pane class</strong></td>
+<td>A single pane; compact layout with a back bar</td>
+<td>A phone or a single-pane desktop view</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Casement</strong> is the reference window-class presenter. It is a server, not a Kit. A pane-class presenter must be implementable from the presenter core alone.</p>
+<h2 id="what-goes-on-the-wire">What goes on the wire</h2>
+<p>Almost all of the spec is application-layer payload. It adds <strong>no Hearth envelope variant</strong>, so the count stays at 24.</p>
+<ul>
+<li><strong>Kinds are namespaced and versioned</strong>, for example <code>benixos.list/1</code>. Each carries a <code>fallbacks[]</code> chain, unknown properties are ignored, and a <em>must-understand</em> flag marks kinds that cannot be skipped. A consent view is must-understand and never falls back.</li>
+<li><strong>Never on Hearth:</strong> GPU textures, file descriptors, handles, encoded video, fonts and glyph atlases, embedded bitmaps, raw pointer streams, and patches retained as history.</li>
+</ul>
+<p>A prototype found requirements the spec must state:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>The tree's wire form is non-recursive</strong>: a flat pre-order list with explicit depth</td>
+<td>A recursive decoder can be crashed by a deeply nested frame far below the size cap. Size caps alone do not protect</td>
+</tr>
+<tr>
+<td><strong>Every patch and event carries a base revision</strong></td>
+<td>The presenter can detect a gap</td>
+</tr>
+<tr>
+<td><strong>A credit window</strong>, counted in patches and bytes</td>
+<td>The app cannot outrun the presenter</td>
+</tr>
+<tr>
+<td><strong>Snapshot, then deltas.</strong> Resync is re-requested until it succeeds, and no credit is granted while out of sync</td>
+<td>A single lost resync request otherwise livelocks a lossy link</td>
+</tr>
+<tr>
+<td><strong>Snapshot retries use stop-and-wait with exponential backoff and jitter</strong></td>
+<td>A jitterless retry loop makes congestion worse</td>
+</tr>
+<tr>
+<td><strong>Input is idempotent</strong>: a sequence number <em>and</em> an epoch for the sender's incarnation, and some classes are droppable</td>
+<td>A sequence number alone is wrong: a restarted sender starts over, and a stale one can claim a huge number</td>
+</tr>
+<tr>
+<td><strong>Frames and signed objects use one deterministic CBOR codec</strong> with bounded depth and size and two limit profiles: unknown keys are ignored in frames and refused in trust objects. Signed bytes are verified as received, never re-encoded</td>
+<td>Two independent implementations must agree, and golden byte vectors pin the format</td>
+</tr>
+<tr>
+<td><strong>An unknown topic looks the same as a hidden endpoint</strong>, and still gets one terminal reply</td>
+<td>Probing cannot map what exists, and no caller hangs</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="where-the-traffic-flows">Where the traffic flows</h2>
+<p>The <strong>hub</strong> carries signalling and low-rate control: session control, presence, push-wake, grant requests and rendezvous. <strong>Interactive view traffic never rides the hub.</strong> It takes a direct path:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Where</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>On the box</td>
+<td>The local bus</td>
+</tr>
+<tr>
+<td>On the LAN</td>
+<td>A mutual-TLS 1.3 peer link whose identity is the device key, checked against the owner-signed roster; no certificate authority</td>
+</tr>
+<tr>
+<td>Across the WAN</td>
+<td>A WebRTC data channel, with a relay as fallback</td>
+</tr>
+</tbody>
+</table></div>
+<p>All three carry the same sealed envelopes. A hub is tuned for household state, not for interactive streams.</p>
+<p>If no direct path exists, the presenter shows the <strong>last cached snapshot, read-only, with a visible "no direct connection" state</strong>. A class of view that cannot degrade this way is refused.</p>
+<p><strong>Transport is never an authorization input.</strong> A direct path bypasses a hub's revocation check, so authority comes only from grants. A remote message does not carry its sender's identity in the base transport, so the peer-link provider checks a signed sender device id against the authenticated device and drops mismatches. That is attribution, never authorization.</p>
+<p>On the LAN, discovery is a hint only: the TLS pin decides identity. The advertised identifier rotates every 15 minutes and is keyed by a household secret in the owner-signed roster, so an observer cannot link a device across time or compute future identifiers from its public key.</p>
+<p>Work remaining on the wire is additive: carrier profiles for the peer link and the data channel, a device-key peer-authentication arm on the session hello, and a push-wake registration field. The first scope is the LAN and BenixOS; the WAN comes later.</p>
+<pre><code class="language-mermaid">flowchart TB
+  subgraph NODE[&quot;Node (runs the app)&quot;]
+    APP[&quot;App&lt;br/&gt;Wasm component&quot;] --- LDR[&quot;Loader&lt;br/&gt;attests the component digest&quot;]
+  end
+  subgraph DEV[&quot;Device (shows the app)&quot;]
+    PRES[&quot;Presenter&lt;br/&gt;supervisor, compositor,&lt;br/&gt;sandboxed renderer&quot;]
+    SIG[&quot;Signer&lt;br/&gt;attenuated delegate key&quot;]
+    PRES -- &quot;consent shown, then grant requested&quot; --&gt; SIG
+  end
+  LDR == &quot;direct path: local bus, LAN peer link, WebRTC&quot; ==&gt; PRES
+  HUB[&quot;Hub&lt;br/&gt;signalling and control only&quot;]
+  HUB -.- PRES
+  HUB -.- LDR
+</code></pre>
+<h2 id="next">Next</h2>
+<p><a href="14-presenter-trust.html">14. Presenter trust</a></p>
+<div class="pager"><a href="12-building-on-benixos.html" rel="prev">← 12. Building on BenixOS</a><a href="14-presenter-trust.html" rel="next">14. Presenter trust →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/vendor/mermaid.min.js" defer></script><script src="assets/site.js" defer></script>
+</body></html>

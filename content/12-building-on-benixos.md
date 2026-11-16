@@ -5,21 +5,60 @@ title: "12. Building on BenixOS"
 # 12. Building on BenixOS
 
 > [!info] State
-> **App Context Kit: alpha.** How a third party would package and publish an app is **Draft**.
+> **Wasm components: Draft.** A prototype runs a component with no ambient authority under a loader. **Containers: Built.** **App Context Kit: alpha.** How a third party would package and publish an app is Draft.
 
 ## What can run on a node
 
-| Kind | Delivered as | State |
-|---|---|---|
-| **A container** | An OCI image pinned by digest | **Built**: the executor runs it under local policy |
-| **A binary** | A signed artifact, only if the operator allows | **Prototype**, in the distribution mechanism |
-| **A service behind the gateway** | A glue plus the upstream service | **Built**, outside Venue |
+| Kind | Delivered as | For | State |
+|---|---|---|---|
+| **A Wasm component** | An OCI artifact, pinned by manifest digest | **Apps written against Kits** (the primary form) | Draft |
+| **A container** | An OCI image, pinned by digest | Ported software | **Built**: the executor runs it under local policy |
+| **A system binary** | An artifact signed by the system | Components of BenixOS itself | Prototype |
+| **A service behind the gateway** | A glue plus the upstream service | Existing household services | **Built**, outside Venue |
 
-A workload's language is not the OS's concern. The OS runs it.
+A container's contents are the OS's business only at the boundary. An app written against Kits is a component.
+
+## An app is a component
+
+A component is a single artifact, about 100 KB for a minimal one, built with the standard toolchain for `wasm32-wasip2`. It runs with **no ambient authority**:
+
+- The filesystem, environment, arguments and network are denied.
+- The clock is allowed, by design.
+- CPU is bounded by fuel, and memory by a cap.
+
+The app's **only way out** is one endpoint on the node-local bus, carried by Message Kit. It sends and receives opaque frames, and the grammar of those frames is the [presenter spec](13-presenters.html). Frames speak the gateway's namespace operations, so an app reaches household resources the same way any other client does.
+
+```text
+interface endpoint {
+  send: func(frame: list<u8>);
+}
+
+world app {
+  import endpoint;
+  export start: func();
+  export deliver: func(frame: list<u8>);
+}
+```
+
+The model is reactive: the loader calls `deliver` for each frame. Clocks and randomness stay as standard imports. WASI 0.3 is ratified, and a prototype runs an asynchronous guest, but the Rust toolchain needs a nightly compiler and a hand-supplied sysroot. The app model does not need async yet.
+
+### The loader
+
+A per-host **loader** runs one process per component instance.
+
+- **A crash or a spin kills only that process.** A sibling app keeps serving.
+- **Identity is attested.** The loader hashes the exact bytes it loads and checks the kernel-reported peer credentials of the connection.
+- **Round trips across the node-local bus are fast enough for interactive use.** Launch time is dominated by compilation, which a cache would remove.
+
+### Packaging
+
+A component is an **OCI artifact**: an empty config, a wasm layer and a detached signature layer. Registry and digest pinning is the whole distribution story for components.
+
+**Pin the manifest digest at admission, not the tag.** A tag can be re-pushed with a publisher's valid signature and point at different bytes. The digest still names the original.
 
 ## App Context Kit
 
-One spec, two implementations (a Dart core with a Flutter companion, and a Rust crate), both held to **shared conformance fixtures**. It gives an app:
+One spec, held to shared conformance fixtures. It gives an app:
 
 - an **identity**,
 - **directories and settings**, with **test and scratch modes**,
@@ -37,8 +76,9 @@ One spec, two implementations (a Dart core with a Flutter companion, and a Rust 
 | Know who someone is | Identity Kit |
 | Run a gated agent task | Errand Kit |
 | Local model inference | Inference Kit |
-| UI | Interface Kit |
 | A workflow strip | Work Strip Kit |
+
+An app's interface is not a Kit. The app describes it, and a [presenter](13-presenters.html) renders it.
 
 ## What a workload needs from the node
 
@@ -54,4 +94,4 @@ A small, read-only web service is a useful test of the mechanism. It forces the 
 
 ## Next
 
-[13. The security model](13-security-model.html)
+[13. Presenters](13-presenters.html)

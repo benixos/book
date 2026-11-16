@@ -9,7 +9,7 @@ title: "6. Venue"
 >
 > **The executor:** **Built** for a single node. It has no signed placements or grants and speaks plain HTTP.
 >
-> **Several nodes:** built and reviewed only against a simulated cluster.
+> **Several nodes:** running on a four-machine lab cluster (a registry and three nodes) under a default-deny policy, with nothing placed yet. An independent re-review of the last fixes is pending.
 
 Venue is the directory, scheduler and ledger for **every place work can run**: a machine, a VM, an API provider, a rentable cloud pool, a peripheral behind a host. **It does not run the work.** The node agent does.
 
@@ -101,7 +101,18 @@ sequenceDiagram
 
 ## Several nodes
 
-The design is a **star**: one registry host, an executor on every node, **outbound-only** connections from the nodes, and **mutual TLS** on the one inbound port. It also includes a heartbeat route so a node can refresh its own lease, an operator CLI, and a lease keeper that renews holds and re-places work before the lease cap. It has been built and reviewed against a simulated cluster of Docker-in-Docker nodes, not against live machines.
+The design is a **star**: one registry host, an executor on every node, **outbound-only** connections from the nodes, and **mutual TLS** on the one inbound port. It also includes:
+
+- a heartbeat route, so a node can refresh its own lease;
+- an operator CLI;
+- a lease keeper that renews holds and re-places work before the lease cap.
+
+A four-machine lab cluster now runs it, with a default-deny policy on every node and no workloads placed yet. Tests on the real machines:
+
+- placed work through the tunnel;
+- spread work across nodes;
+- refused work that did not fit;
+- survived a partition: the cut-off node stopped its workload at the lease end, not before.
 
 ## Next
 

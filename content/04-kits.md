@@ -7,7 +7,7 @@ title: "4. Kits"
 > [!info] State
 > The Kit model is settled. **No Kit is `stable`.** Message Kit and Fabric Kit are `pre-release`; the rest are `alpha`.
 
-A **Kit** is a focused library that owns one job and exposes an API other things build on. **Products compose Kits.** The dependency graph is acyclic. Kits are Rust, with a Flutter and Dart facade only where a UI platform needs one.
+A **Kit** is a focused library that owns one job and exposes an API other things build on. **Products compose Kits.** The dependency graph is acyclic. Kits are Rust.
 
 ## When something becomes a Kit
 
@@ -17,7 +17,7 @@ A Kit is a **domain**, not a protocol or a feature. A new Kit needs:
 2. an invariant no existing Kit holds, and
 3. more than a module's worth of surface.
 
-Anything that fails the test is a module of an existing Kit. Identity Kit holds `claim`, Fabric Kit holds `stream`, Substrate Kit holds `host`, and Interface Kit holds `mold`.
+Anything that fails the test is a module of an existing Kit. A server such as a presenter is not a Kit either. Identity Kit holds `claim`, Fabric Kit holds `stream`, Substrate Kit holds `host`, and Interface Kit holds `mold`.
 
 ## Status vocabulary
 
@@ -61,7 +61,7 @@ Evidence is the test, not intent.
 
 | Kit | Status | Job |
 |---|---|---|
-| **App Context Kit** | alpha | One spec and shared fixtures that a Dart and a Rust implementation both pass: an app's identity, directories, settings, roster presence, Venue session, peers |
+| **App Context Kit** | alpha | One spec with shared conformance fixtures: an app's identity, directories, settings, roster presence, Venue session, peers |
 | **Interface Kit** | alpha | Cross-platform UI patterns; module `mold` |
 | **Work Strip Kit** | alpha | Workflow as one component; module `dispatcher` |
 

@@ -16,7 +16,7 @@ There is no deploy pipeline of our own. Merging to `main` publishes the committe
 
 ## Changing the book
 
-1. Edit files in `content/` (or `assets/`, or `tools/build.py`).
+1. Edit files in `content/` (or `assets/`, or `tools/build.py`). To change the architecture diagram, edit `tools/make_diagram.py` and run `make diagram`.
 2. Run `make build`. It rewrites `docs/` and fails on forbidden content or a broken local link.
 3. Commit `content/` and `docs/` **together**. The published site is `docs/`, so a content change without a rebuild is not live.
 4. Open a pull request. The `check` workflow runs the build.
@@ -70,4 +70,4 @@ Revert the merge commit on `main` and push. The previous `docs/` is published ag
 
 ## Updating Mermaid
 
-`assets/vendor/mermaid.min.js` is a pinned, unmodified copy (see `assets/vendor/README.md`). To update it, download the new release from the same CDN path, replace the file and its licence, update the version in the README, rebuild, and look at every page that has a diagram: `02`, `04`, `06` and `09`.
+`assets/vendor/mermaid.min.js` is a pinned, unmodified copy (see `assets/vendor/README.md`). To update it, download the new release from the same CDN path, replace the file and its licence, update the version in the README, rebuild, and look at every page that has a diagram: `02`, `04`, `06`, `09` and `13`.

@@ -1,11 +1,11 @@
 ---
-title: "14. Status"
+title: "16. Status"
 ---
 
-# 14. Status
+# 16. Status
 
 > [!info] State
-> A snapshot at **15 November 2026**. Where this page and a repository disagree, the repository is right.
+> A snapshot at **16 November 2026**. Where this page and a repository disagree, the repository is right.
 
 ## What exists
 
@@ -15,7 +15,7 @@ title: "14. Status"
 | Message Kit, Fabric Kit | Pre-release |
 | Venue Kit and `venued` | Alpha; runnable |
 | Executor | Built for a single node |
-| Several-node link and tools | Built and reviewed against a simulated cluster |
+| Several-node link and tools | Running on a four-machine lab cluster; nothing placed yet |
 | Gateway and glues | Live |
 | Distribution mechanism | Prototype, throwaway keys |
 | Claim agent and mDNS advertiser | Built |
@@ -23,6 +23,11 @@ title: "14. Status"
 | Inference Kit | Alpha |
 | DeviceNix | Partial: boots headless; rollback not shown |
 | Node contract v0 | Draft |
+| Presenter spec and core | Draft; each requirement marked tested, specified, or required but not built |
+| Owner-signed roster and LAN peer link | Prototype |
+| Wasm loader and signer | Prototype |
+| Window shell (Casement) | Prototype (headless compositor); does not yet earn full trust |
+| Sandboxed presenter renderer | Prototype: one process per instance, in the real LAN path |
 
 ## Not yet built
 
@@ -34,6 +39,12 @@ title: "14. Status"
 - Real key custody for distribution signing
 - A demonstrated DeviceNix rollback
 - A stable API on any Kit
+- A frozen presenter spec, and a presenter with a live window
+- A full-trust host: a physical input path, a separate signer user id, and a separate user id per renderer
+- Owner-key rotation, roster roles and enrollment
+- Independent presenter and signer implementations
+- A direct path across the WAN
+- A production toolchain for asynchronous components
 
 ## How to read the labels
 

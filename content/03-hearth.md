@@ -37,7 +37,7 @@ There is no fourth category.
 | **Base** | The envelope, tags, the T/R/D grammar, `RError`, addressing | Message Kit |
 | **Fabric** | Sessions, pub/sub, pairing, presence, offline catch-up, end-to-end encryption | The hub, and Fabric Kit as the client SDK |
 
-A message is **one envelope end to end**. Crossing the box boundary swaps only the transport: a Unix socket on the device, a WebSocket to the hub.
+A message is **one envelope end to end**. Crossing the box boundary swaps only the transport: a Unix socket on the device, a WebSocket to the hub, or, for interactive views, a direct peer link or data channel ([Presenters](13-presenters.html)).
 
 ## Transport
 
@@ -79,6 +79,7 @@ The node contract adds one Hearth clause: a node must speak Hearth v1, prove pos
 - **Node liveness is advertisement freshness.** `DPresence` is advisory.
 - **Handles never cross the remote boundary.** Over Hearth a handle means capability plus route plus lease, resolved again on the far side.
 - **Placements and invokes are sealed off the LAN**, with the registry's signature inside the sealed payload.
+- **Presenter traffic is payload too.** Views, patches and consent are payload kinds. The hub carries only signalling and control for them, never the interactive stream.
 
 ## Next
 
