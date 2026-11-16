@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2. Architecture · The BenixOS Book</title>
+<meta name="description" content="The layering is settled. The node runtime and placement path are Partial (one node, compose bundle). The node contract is Draft.">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html" aria-current="page">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="2-architecture">2. Architecture</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p>The layering is settled. The node runtime and placement path are <strong>Partial</strong> (one node, compose bundle). The node contract is <strong>Draft</strong>.</p>
+</div>
+
+<p><img alt="System architecture diagram" src="assets/benixos-system-architecture.svg" /></p>
+<h2 id="the-layers">The layers</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What lives here</th>
+<th>Chapter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Applications</strong></td>
+<td>Courier, household services (Jellyfin, Home Assistant, Pi-hole, Frigate), automation, operator tools</td>
+<td>12</td>
+</tr>
+<tr>
+<td><strong>Kits</strong></td>
+<td>The framework layer: one Kit per domain</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>System servers</strong></td>
+<td><code>venued</code>, the node agent, the gateway, glues, claim and discovery</td>
+<td>5, 6, 8</td>
+</tr>
+<tr>
+<td><strong>Node contract and wire</strong></td>
+<td>Hearth, namespace ops, the node contract, capability grants</td>
+<td>3, 7</td>
+</tr>
+<tr>
+<td><strong>Node runtime</strong></td>
+<td>libbenix, dockerd and containers, local bus</td>
+<td>11</td>
+</tr>
+<tr>
+<td><strong>Hosts</strong></td>
+<td>DeviceNix, Ubuntu/Debian, macOS, Windows</td>
+<td>11</td>
+</tr>
+<tr>
+<td><strong>Hardware</strong></td>
+<td>Thunderhead Aether (Pi 5 / CM5), Forge (AMD64)</td>
+<td>11</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Android comparison is useful for the shape and misleading in two places. <strong>Hosts are plural</strong>: there is no single kernel at the bottom, only "any host that meets the node contract". And <strong>placement has no Android counterpart</strong>: deciding which node runs a workload, and having that node independently decide whether to, is the distributed part.</p>
+<h2 id="three-planes">Three planes</h2>
+<p>The design separates three jobs that are easy to blur.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Plane</th>
+<th>Job</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Control</strong></td>
+<td>Decide <em>where</em> work may run: registry, planner, leases</td>
+<td><strong>Venue</strong> (<code>venued</code>)</td>
+</tr>
+<tr>
+<td><strong>Enforcement</strong></td>
+<td>Decide <em>whether</em> it runs, from owner-signed grants and local policy</td>
+<td><strong>The node agent</strong> (the executor)</td>
+</tr>
+<tr>
+<td><strong>Wire</strong></td>
+<td>Carry messages between nodes, with identity, sealing and ordering</td>
+<td><strong>Hearth</strong>, via Message Kit and Fabric Kit</td>
+</tr>
+</tbody>
+</table></div>
+<div class="callout callout-important">
+<p class="callout-title">The central rule</p>
+<p><strong>A placement is not an authorization.</strong> Venue decides where; the node agent independently decides whether. A placement with no covering grant is refused. (Node contract §5.1.)</p>
+</div>
+
+<p>This is why the node agent is a separate process from the registry, and why the registry holds no Docker socket. A compromised registry can ask for bad work; it cannot make a node do it.</p>
+<h2 id="who-trusts-whom">Who trusts whom</h2>
+<pre><code class="language-mermaid">flowchart LR
+  OWNER[&quot;Owner&lt;br/&gt;device-root key&quot;]
+  REG[&quot;Registry&lt;br/&gt;(venued)&quot;]
+  NODE[&quot;Node agent&quot;]
+  WORK[&quot;Workload&quot;]
+  HUB[&quot;Hub&lt;br/&gt;(untrusted for content)&quot;]
+
+  OWNER -- &quot;signs grants, pins registry key at claim&quot; --&gt; NODE
+  OWNER -- &quot;signs admissions&quot; --&gt; NODE
+  REG -- &quot;signed placement: where&quot; --&gt; NODE
+  NODE -- &quot;starts only what grants + local policy allow&quot; --&gt; WORK
+  HUB -. &quot;carries sealed frames; cannot read or forge&quot; .- NODE
+</code></pre>
+<ul>
+<li><strong>The owner</strong> is the person whose key was pinned on the node at claim. Their key is the root of every offline check.</li>
+<li><strong>The registry</strong> is trusted for <em>placement order</em>, not for authorization.</li>
+<li><strong>The hub</strong> carries sealed payloads. The seal proves only "some household device", so the registry's signature goes <em>inside</em> the sealed payload (contract §9.3).</li>
+<li><strong>Keycloak</strong> authenticates a human to the consent step. It is <strong>never an input to a node's grant check</strong> (contract §2.3).</li>
+</ul>
+<h2 id="where-the-code-lives">Where the code lives</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Repo</th>
+<th>Org</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wire spec</td>
+<td><code>hearth</code></td>
+<td>slash-builder</td>
+</tr>
+<tr>
+<td>Kits (one repo each, except merged ones)</td>
+<td><code>message-kit</code>, <code>fabric-kit</code>, <code>venue-kit</code>, <code>storage-kit</code>, …</td>
+<td>slash-builder</td>
+</tr>
+<tr>
+<td>System tree (new)</td>
+<td><code>benixos</code> (executor, compose bundle)</td>
+<td><strong>benixos</strong> org</td>
+</tr>
+<tr>
+<td>Distribution prototype</td>
+<td><code>distribution</code></td>
+<td>benixos</td>
+</tr>
+<tr>
+<td>Host distro</td>
+<td><code>core</code> (Yocto, <code>meta-benixos</code>)</td>
+<td>slash-builder</td>
+</tr>
+<tr>
+<td>Gateway and glue</td>
+<td><code>gateway</code>, <code>service-catalog</code></td>
+<td>slash-builder, private</td>
+</tr>
+<tr>
+<td>Commercial operator</td>
+<td><code>hub</code>, <code>api</code>, <code>courier</code>, <code>identity-service</code></td>
+<td>quickring</td>
+</tr>
+</tbody>
+</table></div>
+<p>New system code goes in one monorepo, and existing system repos do not migrate yet. First-tier BenixOS repos live in the <code>benixos</code> GitHub organisation. Kits stay in <code>slash-builder</code>.</p>
+<h2 id="topology">Topology</h2>
+<p>The working design for several nodes is a <strong>star</strong>: one registry host, an executor on every node, nodes connect outbound only, mutual TLS on the one inbound port. It is built and reviewed only against a simulated cluster so far (<a href="06-venue.html">chapter 6</a>).</p>
+<h2 id="next">Next</h2>
+<p><a href="03-hearth.html">3. Hearth</a></p>
+<div class="pager"><a href="01-what-benixos-is.html" rel="prev">← 1. What BenixOS is</a><a href="03-hearth.html" rel="next">3. Hearth →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/vendor/mermaid.min.js" defer></script><script src="assets/site.js" defer></script>
+</body></html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7. Grants and enforcement · The BenixOS Book</title>
+<meta name="description" content="Two systems, one built and one designed. - Executor policy v0: Built in venue-node, default-deny, exercised by the real-Docker exit test. It is a local policy, not a grant system. - Owner-signed grant">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html" aria-current="page">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="7-grants-and-enforcement">7. Grants and enforcement</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p><strong>Two systems, one built and one designed.</strong>
+- <strong>Executor policy v0</strong>: <strong>Built</strong> in <code>venue-node</code>, default-deny, exercised by the real-Docker exit test. It is a <em>local policy</em>, not a grant system.
+- <strong>Owner-signed grants</strong> (node contract §6): <strong>Draft</strong>. A <code>resource-addr</code> spike prototypes the typed-address rule. Nothing grant-path is built to the contract.</p>
+</div>
+
+<p>BenixOS enforces authority <strong>at the resource</strong>, not at the edge. The node agent is where scope, attenuation and revocation get checked. That is why capability enforcement is treated as the same track as hardening Venue, not a separate priority .</p>
+<h2 id="the-grant-model-design">The grant model (design)</h2>
+<p>One grant system (contract §6):</p>
+<ul>
+<li><strong>Owner-signed, per-grantee, typed</strong> <em>use</em> and <em>egress</em> grants, issued by the device-root holder and <strong>verifiable offline</strong>.</li>
+<li>Venue reads them through its <code>Grants</code> trait. <code>StaticGrants</code> is for tests only. <code>authority.yaml</code> holds scheduler caller caps, <strong>not</strong> grants.</li>
+<li>The issuer chain is <strong>device-root holder, then attenuated delegate, then member</strong>, verified offline. Keycloak authenticates the human to the consent step and <strong>is never an input to the node's check</strong>.</li>
+</ul>
+<h3 id="three-rules-for-the-grant-path">Three rules for the grant path</h3>
+<ol>
+<li><strong>Grants name typed resources and match segment by segment.</strong> A grant MUST NOT be matched against a raw string.</li>
+<li><strong>An address is parsed once into a typed value</strong> that rejects every non-canonical spelling. The gate, the proof-of-possession signature and the executor all consume that one value.</li>
+<li><strong>The executor builds upstream requests from typed segments</strong> with per-segment encoding, then <strong>asserts</strong> scheme, host, port, base prefix and segment count. Unknown means deny.</li>
+</ol>
+<h3 id="attenuation-and-revocation">Attenuation and revocation</h3>
+<ul>
+<li>Attenuation may <strong>only narrow</strong>: fewer operations, a longer prefix, an earlier expiry. It must be checkable offline.</li>
+<li>Revocation is <strong>short-lived grants plus a node-local revocation list</strong>. The revocation SLA is the grant's TTL.</li>
+</ul>
+<h3 id="placement-checks-53">Placement checks (§5.3)</h3>
+<p>For a placement the agent MUST check:</p>
+<ol>
+<li>the <strong>signature</strong> (registry key);</li>
+<li>the registry <strong>incarnation</strong>;</li>
+<li>that the <strong>revision exceeds a high-water mark persisted on disk</strong>;</li>
+<li>that the <strong>lease is live</strong> by the agent's <em>own</em> monotonic clock;</li>
+<li>that the <strong>grants verify offline</strong> and cover the work;</li>
+<li>that the spec fits <strong>node-local policy</strong>.</li>
+</ol>
+<p>Any failure refuses the placement. The <strong>fencing token</strong> is <code>(registry key id, incarnation, hold revision)</code>, minted by the registry. A hub ULID is never a fencing token or evidence of order. A restored registry starts a new incarnation and the owner re-anchors nodes.</p>
+<h3 id="partition-policy-55">Partition policy (§5.5)</h3>
+<p>Each workload declares what happens if the node loses its registry:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>replace</strong></td>
+<td>The replacement starts only after the old lease has expired plus a clock-skew margin</td>
+</tr>
+<tr>
+<td><strong>hold</strong></td>
+<td>Keep running until the authority returns</td>
+</tr>
+<tr>
+<td><strong>self-stop</strong></td>
+<td>Stop when the lease ends</td>
+</tr>
+</tbody>
+</table></div>
+<p>"Unknown" refuses new work and <strong>must not kill running work by itself</strong>.</p>
+<h2 id="what-exists-today">What exists today</h2>
+<h3 id="qr-cap-in-the-gateway-live-being-reworked"><code>qr-cap</code> in the gateway: live, being reworked</h3>
+<p>Proof-of-possession signing over the path, with grants held as <strong>household-wide prefix records</strong> in the gateway's consent file. The plan is to rework it into a typed-address enforcement library. The path-spelling set the library must survive includes <code>//</code>, <code>.</code>, <code>..</code>, <code>%2e</code>, <code>%2f</code>, double encoding, <code>\</code>, <code>?</code>, <code>#</code>, <code>;</code>, case variants, Unicode, control characters and empty segments.</p>
+<h3 id="executor-policy-v0-built-default-deny">Executor policy v0: built, default-deny</h3>
+<p>The executor's policy is <strong>local to the node</strong>, read once at start, and unknown keys are an error. <strong>Nothing runs until the owner allows an image by digest.</strong> The policy table has 69 rows (<code>POLICY-V0.md</code>). What the real run verified:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Image</td>
+<td>Only an owner-allowed image; a disallowed image is refused. A tag is <strong>always pulled</strong>; a digest only if absent.</td>
+</tr>
+<tr>
+<td>Privilege</td>
+<td><strong>Privileged mode refused.</strong> All capabilities dropped. <code>no-new-privileges</code>.</td>
+</tr>
+<tr>
+<td>Docker socket</td>
+<td>A workload that asks for <code>docker.sock</code> is refused.</td>
+</tr>
+<tr>
+<td>Mounts</td>
+<td><strong>Any host-path mount is denied</strong> (rule P5). Traversal and plain relative mounts are refused. Named volumes are the unbuilt next step.</td>
+</tr>
+<tr>
+<td>User</td>
+<td>Workloads run as <strong>uid 10100</strong>. The policy cannot allow uids 10000 or 10001.</td>
+</tr>
+<tr>
+<td>Filesystem</td>
+<td>Read-only root filesystem.</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>A dedicated user-defined <code>icc=false</code> bridge. <strong>Egress is still open.</strong></td>
+</tr>
+<tr>
+<td>Resources</td>
+<td>Limits applied (pids, memory).</td>
+</tr>
+<tr>
+<td>Refusals</td>
+<td>Reported with the <strong>exact rule id</strong>; the daemon's own event record shows nothing was created.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="ownership-and-identity-of-containers">Ownership and identity of containers</h3>
+<p>The executor acts only on containers carrying the managed label, <strong>this node's name, and this install's random instance id</strong>. A foreign or old container is never touched. <code>down -v</code> creates a new identity and <strong>orphans</strong> the previous workloads: they are left alone, not removed.</p>
+<h2 id="the-review-gate">The review gate</h2>
+<p>Grant-path code is subject to a <strong>review gate</strong> (priorities §6), intended to live in a PR template: an independent review, mutation evidence that each check is load-bearing, and a request-recording mock that proves the upstream received nothing on a refused request. The M1 milestone's exit test is built on it.</p>
+<h2 id="gaps-stated-plainly">Gaps, stated plainly</h2>
+<ul>
+<li>No owner-signed grant exists yet. The executor's local policy stands in.</li>
+<li>No placement is signed. The executor trusts <code>venued</code> over a token.</li>
+<li>The typed-address library is a prototype, not the gate.</li>
+<li>The executor's token never expires; its NodeAgent class can read every workload spec on its node and write false status for them, but cannot place or start anything.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p><a href="08-gateway-and-services.html">8. The gateway and services</a></p>
+<div class="pager"><a href="06-venue.html" rel="prev">← 6. Venue</a><a href="08-gateway-and-services.html" rel="next">8. The gateway and services →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/site.js" defer></script>
+</body></html>

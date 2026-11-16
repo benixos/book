@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4. Kits · The BenixOS Book</title>
+<meta name="description" content="The Kit model is settled, and the Kit registry (kits.yaml, 7 November 2026) is the authority. No Kit is stable. Message Kit and Fabric Kit are pre-release; most others are alpha. Per-Kit reference bel">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html" aria-current="page">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="4-kits">4. Kits</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p>The Kit model is settled, and the Kit registry (<code>kits.yaml</code>, 7 November 2026) is the authority. <strong>No Kit is <code>stable</code>.</strong> Message Kit and Fabric Kit are <code>pre-release</code>; most others are <code>alpha</code>. Per-Kit reference belongs in the Kit Book.</p>
+</div>
+
+<h2 id="what-a-kit-is">What a Kit is</h2>
+<p>A Kit is a focused library that owns one job and exposes an API other things build on. <strong>Products compose Kits. Never fork Kit logic into a product.</strong> The dependency graph is acyclic. Kits are Rust, with a Flutter/Dart facade only where a UI platform needs it. Published crates are named <code>slashbuilder-&lt;kit&gt;</code>; the GitHub repo keeps the plain Kit name.</p>
+<h3 id="when-something-becomes-a-kit">When something becomes a Kit</h3>
+<p>The rule since 7 November 2026 is "one Kit per domain": a Kit is a <strong>domain</strong>, not a protocol or a feature. A new Kit needs:</p>
+<ol>
+<li><strong>two independent consumers</strong>,</li>
+<li><strong>an invariant no existing Kit holds</strong>, and</li>
+<li><strong>more than a module's worth of surface</strong>.</li>
+</ol>
+<p>Anything that fails that test becomes a module of an existing Kit. The 7 November 2026 merges applied it:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Was</th>
+<th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claim Kit</td>
+<td>module <code>claim</code> of Identity Kit</td>
+</tr>
+<tr>
+<td>Stream Kit</td>
+<td>module <code>stream</code> of Fabric Kit</td>
+</tr>
+<tr>
+<td>Dispatcher Wire Kit</td>
+<td>module <code>dispatcher</code> of Work Strip Kit</td>
+</tr>
+<tr>
+<td>Glue Host Kit</td>
+<td>module <code>host</code> of Substrate Kit</td>
+</tr>
+<tr>
+<td>Mold Kit</td>
+<td>module <code>mold</code> of Interface Kit</td>
+</tr>
+<tr>
+<td>Platform, Device, Score, App Store Kit</td>
+<td>one repo, <code>thunderhead-kit</code>, four crates, <strong>banked</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="status-vocabulary-evidence-is-the-test-not-intent">Status vocabulary (evidence is the test, not intent)</h3>
+<p><code>design</code> (a document) → <code>scaffold</code> (a skeleton nothing depends on) → <code>alpha</code> (real code and tests, no stable API) → <code>pre-release</code> (published, depended on, API settling) → <code>stable</code> (API frozen with a versioning promise). Also <code>legacy</code> (archived) and <code>banked</code> (paused on purpose).</p>
+<h2 id="the-catalog">The catalog</h2>
+<p>Sixteen entries: <strong>fourteen active, one banked, one archived.</strong></p>
+<h3 id="protocol">Protocol</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>Status</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Message Kit</strong></td>
+<td>pre-release</td>
+<td>The Hearth envelope, the T/R/D grammar, the <code>RemoteTransport</code> trait, and the local <code>AF_UNIX SOCK_SEQPACKET</code> bus. Published 0.1.0 with six dependents.</td>
+</tr>
+<tr>
+<td><strong>Fabric Kit</strong></td>
+<td>pre-release</td>
+<td>The Hearth SDK: pub/sub, pairing, family-graph client; module <code>stream</code>. The most mature Kit (about 7k lines, live consumers).</td>
+</tr>
+<tr>
+<td><strong>Spec Kit</strong></td>
+<td>alpha</td>
+<td>Conformance and spec primitives; a frozen conformance ABI, 27 tests. Intended home of the Hearth and node conformance suites.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="data-and-identity">Data and identity</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>Status</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Storage Kit</strong></td>
+<td>alpha</td>
+<td>Content-addressed storage: BLAKE3, FastCDC or fixed chunking, Zstd packfiles, per-partition isolation. Address of record <code>(partition_id, content_id)</code>.</td>
+</tr>
+<tr>
+<td><strong>Identity Kit</strong></td>
+<td>alpha</td>
+<td>OIDC client, <code>ServicePrincipal</code>, account and family types; module <code>claim</code>. 94 tests, two dependents. The authorization engine is unbuilt.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="placement-and-runtime">Placement and runtime</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>Status</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Venue Kit</strong></td>
+<td>alpha</td>
+<td>One registry and planner for every place work can run. <code>venued</code> is its daemon. Provisional name.</td>
+</tr>
+<tr>
+<td><strong>Errand Kit</strong></td>
+<td>alpha</td>
+<td>Gated, sandboxed agent runs; credentials dropped, verdict computed in code, hand-back waits for consent. 201 unit tests.</td>
+</tr>
+<tr>
+<td><strong>Substrate Kit</strong></td>
+<td>alpha</td>
+<td>The Linux and dockerd lifecycle, cgroup, mount and principal layer; module <code>host</code>. 22 tests.</td>
+</tr>
+<tr>
+<td><strong>Service Kit</strong></td>
+<td>alpha</td>
+<td><code>axum</code>/<code>tower</code> service foundation: metrics, structured errors, audit trail. No dependents yet.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="apps-and-interface">Apps and interface</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>Status</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>App Context Kit</strong></td>
+<td>alpha</td>
+<td>One spec and 61 shared fixtures that a Dart and a Rust implementation both pass: an app's identity, directories, settings, roster presence, Venue session, peers.</td>
+</tr>
+<tr>
+<td><strong>Interface Kit</strong></td>
+<td>alpha</td>
+<td>Cross-platform household-computing UI patterns; module <code>mold</code>. Three dependents, including Courier.</td>
+</tr>
+<tr>
+<td><strong>Work Strip Kit</strong></td>
+<td>alpha</td>
+<td>Workflow as one component; module <code>dispatcher</code>. Two consumers, nothing published. Provisional name.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="intelligence-and-build">Intelligence and build</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>Status</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Inference Kit</strong></td>
+<td>alpha</td>
+<td>Local-first, egress-gated inference orchestration. 216 tests, public repo. The strongest evidence of any primitive.</td>
+</tr>
+<tr>
+<td><strong>Manifest Kit</strong></td>
+<td>alpha</td>
+<td>Generate operating systems from a manifest. Build-time only; real non-Rust tooling.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="banked-and-archived">Banked and archived</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Kit</th>
+<th>Status</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Thunderhead Kit</strong></td>
+<td>banked</td>
+<td>The Thunderhead device stack (board bring-up, peripherals, capability scoring, app store). Off-focus with the Thunderhead program since 19 October 2026. Provisional name.</td>
+</tr>
+<tr>
+<td><strong>Design Kit</strong></td>
+<td>legacy</td>
+<td>Archived 30 August 2026, retired into Digital Zen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Pending, no repo:</strong> Stash Kit (working memory with per-principal keys). <strong>Not registered:</strong> Footprint Kit.</p>
+<h2 id="how-kits-depend-on-one-another-as-far-as-the-registry-says">How Kits depend on one another (as far as the registry says)</h2>
+<pre><code class="language-mermaid">flowchart BT
+  MSG[&quot;Message Kit&quot;]
+  FAB[&quot;Fabric Kit&quot;] --&gt; MSG
+  STO[&quot;Storage Kit&quot;]
+  SPEC[&quot;Spec Kit&quot;]
+  SVC[&quot;Service Kit&quot;]
+  INF[&quot;Inference Kit&quot;] --&gt; STO
+  INF --&gt; MSG
+  INF --&gt; SPEC
+  INF --&gt; SVC
+  SUB[&quot;Substrate Kit&quot;] -. &quot;embodies&quot; .-&gt; IDK[&quot;Identity Kit&quot;]
+  GW[&quot;gateway (not a Kit)&quot;] -.-&gt; FAB
+  GW -.-&gt; IDK
+  GW -.-&gt; SUB
+</code></pre>
+<p>Solid arrows are declared in the registry's <code>substrate:</code> lists. Dotted arrows are consumption relationships stated in prose. This is <strong>not</strong> a Cargo dependency graph; it was not generated from the manifests. Inference Kit also names Score Kit, which is <code>design</code> status and banked: a dependency on a Kit that does not exist as code.</p>
+<h2 id="honest-observations">Honest observations</h2>
+<ul>
+<li><strong>The registry is stronger than the stable surface.</strong> The API-stability promise is the Kit model's reason for being, and it is unmet.</li>
+<li><strong>Several Kits are stubs in the registry.</strong> The registry header says thirteen entries carry "STUB ENTRY" descriptions and five (Inference, Manifest, Mold, Stash, Venue) have full depth; that count dates from 19 October 2026 and may have moved. Absent invariants mean "not yet transcribed", not "none".</li>
+<li><strong>Kits are separate repos on purpose.</strong> They have independent consumers, publishing and visibility, with a separate decision for each before anything goes public.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p><a href="05-nodes.html">5. Nodes</a></p>
+<div class="pager"><a href="03-hearth.html" rel="prev">← 3. Hearth</a><a href="05-nodes.html" rel="next">5. Nodes →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/vendor/mermaid.min.js" defer></script><script src="assets/site.js" defer></script>
+</body></html>

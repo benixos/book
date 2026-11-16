@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>9. Distribution · The BenixOS Book</title>
+<meta name="description" content="Partial, and parked. benixos/distribution is a pre-beta prototype with throwaway keys only: 397 tests (channel 181, core 125, node 91), two end-to-end flows on Linux and macOS, Apache-2.0. Not audited">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html" aria-current="page">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="9-distribution">9. Distribution</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p><strong>Partial, and parked.</strong> <code>benixos/distribution</code> is a <strong>pre-beta prototype with throwaway keys only</strong>: 397 tests (channel 181, core 125, node 91), two end-to-end flows on Linux and macOS, Apache-2.0. <strong>Not audited, never run against a hardware key, no TLS, no separate fetcher process.</strong> In November 2026 the plan was to park it, because a compose bundle pinned by image digest replaces it for the first bootstrap.</p>
+</div>
+
+<p>A <strong>distribution</strong> is a named bundle of services, for example a small household: media, home automation, a DNS filter. Think of it as an <strong>app store with a notary</strong>.</p>
+<p>A publisher builds and signs a release. It lands on a <strong>channel</strong> (nightly, beta, stable), which is just a folder of files that any web server or USB stick can serve. Each node pulls the release, checks everything, works out what can run on <em>itself</em>, and starts only what <strong>the owner personally approved</strong>.</p>
+<p>Nothing the publisher says can approve anything for the owner.</p>
+<h2 id="who-does-what">Who does what</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Who</th>
+<th>Role</th>
+<th>Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Publisher</strong></td>
+<td>Writes the distribution, builds artifacts, signs the release</td>
+<td>Channel signing keys, one set per channel</td>
+</tr>
+<tr>
+<td><strong>Owner</strong></td>
+<td>Decides which services may run; can roll back</td>
+<td>One SSH key; its public half is pinned on every node</td>
+</tr>
+<tr>
+<td><strong>Channel / mirror</strong></td>
+<td>Serves static files; <strong>not trusted at all</strong></td>
+<td>Nothing</td>
+</tr>
+<tr>
+<td><strong>Node</strong></td>
+<td>Runs the distribution</td>
+<td>The owner's public key, a pinned root, a memory of what it has seen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="the-seven-steps">The seven steps</h2>
+<ol>
+<li><strong>Describe.</strong> Three small text files: the <strong>services</strong> (and how each is delivered: container image, binary, UI), the <strong>stack</strong> (which are required, recommended, optional), and the <strong>distribution</strong> (which kinds of machine it supports). Every artifact is <strong>pinned by hash</strong>; never "latest".</li>
+<li><strong>Compile to a lock.</strong> A resolver produces one <strong>lock</strong>, the complete self-contained plan. Its fingerprint, the <strong>release id</strong>, is a hash of its contents.</li>
+<li><strong>The owner approves.</strong> For each service the owner signs a small <strong>admission</strong> with an SSH key. No admission, no run.</li>
+<li><strong>Publish.</strong> The publisher signs the release onto a channel. <strong>Different channels have different signing keys</strong>, so a key that is online for nightly can never sign stable.</li>
+<li><strong>The node verifies.</strong> Signatures meet the threshold; metadata is not expired; it is <strong>not older</strong> than anything already seen; every file matches its hash and length; the lock hashes to the id claimed; the lock is structurally sane. Any failure leaves the machine as it was.</li>
+<li><strong>Plan, check, apply.</strong> The node measures itself, the planner decides what runs <em>here</em> and why, then admissions are checked against every planned service. Containers start by digest, read-only, no capabilities, no network. Binaries run only if the operator allows.</li>
+<li><strong>Update and roll back.</strong> A new release goes through the same path; only what changed restarts. <strong>Going backwards needs a record signed by the owner</strong>, tied to this node and used once.</li>
+</ol>
+<pre><code class="language-mermaid">flowchart TB
+  subgraph PUB[&quot;Publisher&quot;]
+    A1[&quot;service + stack + distribution files&quot;] --&gt; A2[&quot;pin artifacts by hash&quot;] --&gt; A3[&quot;resolve to LOCK&lt;br/&gt;release id = hash&quot;] --&gt; A4[&quot;sign onto a channel&quot;]
+  end
+  subgraph OWN[&quot;Owner&quot;]
+    O1[&quot;sign one ADMISSION per service&quot;]
+  end
+  M1[(&quot;Channel / mirror&lt;br/&gt;untrusted static files&quot;)]
+  subgraph NODE[&quot;Node&quot;]
+    N1{&quot;VERIFY&quot;} --&gt; N3[&quot;PROBE this machine&quot;] --&gt; N4[&quot;PLAN&quot;] --&gt; N5{&quot;ADMIT?&quot;}
+    N5 -- yes --&gt; N6[&quot;APPLY pinned artifacts&quot;]
+    N1 -- fail --&gt; X[&quot;REFUSE, change nothing&quot;]
+    N5 -- no --&gt; X
+  end
+  A4 --&gt; M1 --&gt; N1
+  O1 --&gt; N5
+</code></pre>
+<h2 id="what-an-attacker-gets">What an attacker gets</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Attack or accident</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unsigned, tampered, truncated or oversized file</td>
+<td>Refused; nothing changes</td>
+</tr>
+<tr>
+<td>An old release replayed, or a stale mirror</td>
+<td>Refused (the node remembers what it has seen)</td>
+</tr>
+<tr>
+<td>Expired metadata</td>
+<td>Installs blocked; <strong>what is running keeps running</strong></td>
+</tr>
+<tr>
+<td><strong>A publisher key stolen</strong></td>
+<td>The thief can publish but <strong>cannot make anything run</strong>: that needs the owner's admission</td>
+</tr>
+<tr>
+<td>A lock that hides or doubles a service</td>
+<td>Refused as malformed</td>
+</tr>
+<tr>
+<td>A file on the node edited behind its back</td>
+<td>Detected, refused</td>
+</tr>
+<tr>
+<td>Power cut mid-update</td>
+<td>Old state intact, retry works</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="the-prototypes-layout">The prototype's layout</h2>
+<p>One Cargo workspace of three crates, with <code>benix-node</code> depending on <code>benix-channel</code> depending on <code>benix-dist-core</code>:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>core/</code> (<code>benix-dist-core</code>)</td>
+<td>Lock canonicalisation and release id, validation, the plan, owner-signed admissions, an SSHSIG verifier (ed25519, ECDSA P-256 and their FIDO security-key forms)</td>
+</tr>
+<tr>
+<td><code>channel/minimal/</code> (<code>benix-channel</code>)</td>
+<td>The TUF-shaped signed channel (root, timestamp, channel roles), the update client, owner records (switch, rollback, reanchor, rekey)</td>
+</tr>
+<tr>
+<td><code>node-lite/</code> (<code>benix-node</code>)</td>
+<td>The node: verify, plan, admit, apply, update, roll back</td>
+</tr>
+<tr>
+<td><code>wiring-authority/</code></td>
+<td>A Python reference resolver the Rust tests compare against</td>
+</tr>
+<tr>
+<td><code>spike-mini/</code></td>
+<td>A two-service example (<code>mini-realm</code>, a heartbeat binary; <code>mini-web</code>, <code>traefik/whoami</code> pinned by digest)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="known-gaps-the-ones-that-matter-most">Known gaps (the ones that matter most)</h2>
+<ul>
+<li><strong>Every key is a throwaway.</strong> Real key custody (offline root on two hardware tokens, FIDO-touched channel signing, an owner key on a device) is not built. No owner record has ever been signed by a physical security key.</li>
+<li><strong>The fetcher is not a separate process;</strong> the HTTP source is a test stub with no TLS.</li>
+<li><strong>The "hand-written minimal client versus <code>tough</code>" decision is a recommendation, not a measurement.</strong> <code>tough</code> has not been run against the attack suite.</li>
+<li><strong>Runtime enforcement is not built.</strong> Nothing reads the admitted ceiling at run time; "observed versus declared use" is absent.</li>
+<li><strong>Binary services run as the node's own user</strong> with no seccomp, namespaces or cgroups, and can rewrite the node's own state file.</li>
+<li><strong>Never run:</strong> two or more nodes, placement by Venue, integration with the real gateway, <code>qr-cap</code> grants or Keycloak. The prototype stands <strong>beside</strong> them.</li>
+<li><strong>Upgrading the node itself</strong> (the agent and claim sit outside the distribution by rule) has no channel.</li>
+</ul>
+<h2 id="where-it-fits">Where it fits</h2>
+<p>Distribution answers "how does a node learn that this set of bytes is what the publisher meant, and may it run?" Venue answers "where may work run?" The node agent answers "whether?". The three are meant to compose: Venue places, the agent checks grants and policy, and a distribution supplies the pinned artifacts. <strong>Only the first two meet in code today</strong> (<a href="06-venue.html">chapter 6</a>), and then without grants.</p>
+<h2 id="next">Next</h2>
+<p><a href="10-data-and-identity.html">10. Data and identity</a></p>
+<div class="pager"><a href="08-gateway-and-services.html" rel="prev">← 8. The gateway and services</a><a href="10-data-and-identity.html" rel="next">10. Data and identity →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/vendor/mermaid.min.js" defer></script><script src="assets/site.js" defer></script>
+</body></html>

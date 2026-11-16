@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>16. Open questions · The BenixOS Book</title>
+<meta name="description" content="A list of choices not yet made, not a to-do list. Collected from the node contract, the bootstrap plan and the multi-node build. Where the book assumes an answer, the page says so.">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html" aria-current="page">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="16-open-questions">16. Open questions</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p>A list of <strong>choices not yet made</strong>, not a to-do list. Collected from the node contract, the bootstrap plan and the multi-node build. Where the book assumes an answer, the page says so.</p>
+</div>
+
+<h2 id="decisions-open">Decisions open</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>The executor and the Docker socket.</strong> Accept the socket in a container (root-equivalent), a filtering proxy sidecar, a host service, or rootless Podman as the contract requires?</td>
+<td>The contract and the shipping bundle disagree</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Does "desktop first" stand?</strong></td>
+<td>Keeps the compositor and the manifest-kit resolver in scope</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Keycloak's scope.</strong> Hosted deployments only, or household deployments too?</td>
+<td>Decides whether a household needs a local realm</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>The fourteen placement-authority amendments</strong> from the protocol and security reviews</td>
+<td>Several narrow the original position</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>The first audience</strong> for a one-node bundle</td>
+<td>The gateway source is private; publishing an image is a choice</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Whether the distribution mechanism stays parked</strong>, and the nightly channel signing posture</td>
+<td>The plan currently says two contradictory things</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Name clearance</strong> for BenixOS and DeviceNix before any public launch</td>
+<td>Only a surface-level search has been done</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Venue's name.</strong> Provisional on purpose</td>
+<td>A rename touches one constant</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="questions-for-the-reviewers-of-the-node-contract">Questions for the reviewers of the node contract</h2>
+<ol>
+<li><strong>"Unknown fails closed" versus "never block a local action."</strong> Security review recommends that local actions still require a valid cached grant.</li>
+<li>How far does the contract bind a <strong>standalone</strong> node with no registry on grant checks?</li>
+<li>Should the <strong>registry signing key</strong> be held by the owner's device or by the registry host? The contract forbids the owner key on the host, not the registry key.</li>
+<li>What is the <strong>root-of-trust provider</strong> interface for a host without a TPM?</li>
+<li>Which host profile counts as "supported" at the two-node milestone? Is a macOS node with no local IPC acceptable?</li>
+<li>Where do the <strong>conformance suites</strong> live: <code>spec-kit</code>, the Hearth repo, or the system monorepo?</li>
+<li>Does the agent's Hearth endpoint make <strong><code>fabric-kit</code> a dependency</strong> of the agent crate, and is that acceptable?</li>
+</ol>
+<h2 id="engineering-questions">Engineering questions</h2>
+<ul>
+<li><strong>Substrate Kit.</strong> Its container spec gained ports, user-defined networks and named volumes in a recent change. Resource limits, secret delivery and label cleanup are still missing.</li>
+<li><strong>Which container runtime layer wins.</strong> Docker through the executor, the gateway's own runtime, Podman (the app-store Kit and the contract), Substrate Kit, and compose all start containers. The first bootstrap uses Docker only.</li>
+<li><strong>Stale documentation.</strong> The Hearth <code>encryption.md</code> describes a pre-implementation state, and the spec's status header is out of date.</li>
+<li><strong>The <code>application-kit</code> spike</strong> is probably superseded by App Context Kit. Confirm, then fold or archive it.</li>
+<li><strong>Open multi-node review findings</strong>, and a GPU test that needs a host change.</li>
+<li><strong>How a second device reaches a hub-less gateway:</strong> the hub's compose bundle, or a local hub role.</li>
+</ul>
+<h2 id="what-this-book-assumes">What this book assumes</h2>
+<ul>
+<li>The November 2026 vocabulary is final.</li>
+<li><strong>Venue first</strong> is the current direction, not a gateway bundle.</li>
+<li>The Kit statuses in the registry (7 November 2026) are current.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p><a href="90-glossary.html">Glossary</a> · <a href="about.html">About this book</a></p>
+<div class="pager"><a href="15-status-and-roadmap.html" rel="prev">← 15. Status and roadmap</a><a href="90-glossary.html" rel="next">Glossary →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/site.js" defer></script>
+</body></html>
