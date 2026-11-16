@@ -16,7 +16,7 @@ There is no deploy pipeline of our own. Merging to `main` publishes the committe
 
 ## Changing the book
 
-1. Edit files in `content/` (or `assets/`, or `tools/build.py`).
+1. Edit files in `content/` (or `assets/`, or `tools/build.py`). To change the architecture diagram, edit `tools/make_diagram.py` and run `make diagram`.
 2. Run `make build`. It rewrites `docs/` and fails on forbidden content or a broken local link.
 3. Commit `content/` and `docs/` **together**. The published site is `docs/`, so a content change without a rebuild is not live.
 4. Open a pull request. The `check` workflow runs the build.
