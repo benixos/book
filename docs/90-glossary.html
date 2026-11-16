@@ -85,6 +85,10 @@
 <td>A node that hosts services</td>
 </tr>
 <tr>
+<td><strong>Full-trust host</strong></td>
+<td>A host where the presenter is the compositor, so consent cannot be covered or faked</td>
+</tr>
+<tr>
 <td><strong>Glue</strong></td>
 <td>A service adapter that exposes an upstream service as nodes in the namespace</td>
 </tr>
@@ -161,6 +165,10 @@
 <td>Per workload: <em>replace</em>, <em>hold</em> or <em>self-stop</em> if the registry is lost</td>
 </tr>
 <tr>
+<td><strong>Peer link</strong></td>
+<td>The direct, mutually authenticated connection between two devices on a LAN</td>
+</tr>
+<tr>
 <td><strong>Placement</strong></td>
 <td>A Venue decision about where work runs. Not an authorization</td>
 </tr>
@@ -183,6 +191,10 @@
 <tr>
 <td><strong>R (message)</strong></td>
 <td>A server response to a T, with the same tag</td>
+</tr>
+<tr>
+<td><strong>Reduced-trust host</strong></td>
+<td>A host that offers only a user-presence prompt: grants are read-only and short-lived</td>
 </tr>
 <tr>
 <td><strong>Registry key</strong></td>
@@ -218,7 +230,7 @@
 </tr>
 <tr>
 <td><strong>Trusted display path</strong></td>
-<td>The host's secure UI, which a compromised presenter cannot fake</td>
+<td>The presenter's ownership of the display and input path, so a compromised app or presenter cannot fake what the user sees</td>
 </tr>
 <tr>
 <td><strong>Typed address</strong></td>

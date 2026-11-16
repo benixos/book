@@ -44,15 +44,17 @@ title: "14. The security model"
 | **Path spellings that slip a grant** | Parse once into a typed value; assert the upstream request | Draft |
 | **Replay of a placement** | Fencing token, registry incarnation, a high-water mark on disk | Draft |
 | **A partitioned registry** | Partition policy per workload; no new placement | Draft |
-| **Remote code execution over the LAN, by design** | Pinned TLS and a token suit the owner's own machines only; signed placements and grants come first | Mutual-TLS link built, simulated only |
+| **Remote code execution over the LAN, by design** | Pinned TLS and a token suit the owner's own machines only; signed placements and grants come first | Mutual-TLS link running on a lab cluster; independent re-review pending |
 | **A workload escapes or exfiltrates** | Read-only root, dropped capabilities, non-root uid, isolated network | Built; egress is open |
 | **Binary services have no sandbox** | A separate process group and cleared environment only | Gap |
 | **A hostile component** | No ambient authority; bounded CPU and memory; one process per instance | Prototype |
 | **A hostile tree crashes the presenter** | A non-recursive wire form, with depth and size enforced while reading | Draft |
 | **An app fakes a consent screen** | The consent kind is reserved; consent is rendered from the presenter's own template | Draft |
 | **In-app phishing** (chrome shows who, not what) | A rule is needed: presenter-owned secret inputs or a visible warning | Gap |
-| **A compromised presenter lies about what it showed** | A trusted display path from the host's secure UI | Gap |
+| **A compromised presenter lies about what it showed** | A trusted display path: the presenter owns the display and input (a full-trust host). Elsewhere, a reduced-trust class with read-only, short-lived grants | Gap: no build earns full trust yet |
 | **A tag re-pushed to different bytes** | Pin the manifest digest at admission | Draft |
+| **A revoked device keeps a live session** | Revocation ends live sessions, not only future handshakes | Prototype |
+| **A spoofed sender on a remote message** | A signed sender device id, verified against the authenticated device | Prototype |
 
 ## Next
 

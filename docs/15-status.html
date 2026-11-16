@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>15. Status · The BenixOS Book</title>
-<meta name="description" content="A snapshot at 15 November 2026. Where this page and a repository disagree, the repository is right.">
+<meta name="description" content="A snapshot at 16 November 2026. Where this page and a repository disagree, the repository is right.">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
 <nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html">13. Presenters</a></li><li class="grp">Practice</li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status.html" aria-current="page">15. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
@@ -10,7 +10,7 @@
 <h1 id="15-status">15. Status</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p>A snapshot at <strong>15 November 2026</strong>. Where this page and a repository disagree, the repository is right.</p>
+<p>A snapshot at <strong>16 November 2026</strong>. Where this page and a repository disagree, the repository is right.</p>
 </div>
 
 <h2 id="what-exists">What exists</h2>
@@ -40,7 +40,7 @@
 </tr>
 <tr>
 <td>Several-node link and tools</td>
-<td>Built and reviewed against a simulated cluster</td>
+<td>Running on a four-machine lab cluster; nothing placed yet</td>
 </tr>
 <tr>
 <td>Gateway and glues</td>
@@ -72,7 +72,11 @@
 </tr>
 <tr>
 <td>Presenter spec and core</td>
-<td>Draft; exercised by a local prototype</td>
+<td>Draft; each requirement marked tested, specified, or required but not built</td>
+</tr>
+<tr>
+<td>Owner-signed roster and LAN peer link</td>
+<td>Prototype</td>
 </tr>
 <tr>
 <td>Wasm loader and signer</td>
@@ -80,7 +84,7 @@
 </tr>
 <tr>
 <td>Window shell (Casement)</td>
-<td>Planned; prototype pieces exist</td>
+<td>Prototype (headless compositor); does not yet earn full trust</td>
 </tr>
 </tbody>
 </table></div>
@@ -95,7 +99,7 @@
 <li>A demonstrated DeviceNix rollback</li>
 <li>A stable API on any Kit</li>
 <li>A frozen presenter spec, and a presenter with a live window</li>
-<li>A trusted display path on any host</li>
+<li>A full-trust host: a physical input path and a separate signer user id</li>
 <li>Independent presenter and signer implementations</li>
 <li>A direct path across the WAN</li>
 <li>A production toolchain for asynchronous components</li>

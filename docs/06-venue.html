@@ -12,7 +12,7 @@
 <p class="callout-title">State</p>
 <p><strong>Venue Kit</strong> and <code>venued</code>: <strong>alpha</strong>. The name is provisional.</p>
 <p><strong>The executor:</strong> <strong>Built</strong> for a single node. It has no signed placements or grants and speaks plain HTTP.</p>
-<p><strong>Several nodes:</strong> built and reviewed only against a simulated cluster.</p>
+<p><strong>Several nodes:</strong> running on a four-machine lab cluster (a registry and three nodes) under a default-deny policy, with nothing placed yet. An independent re-review of the last fixes is pending.</p>
 </div>
 
 <p>Venue is the directory, scheduler and ledger for <strong>every place work can run</strong>: a machine, a VM, an API provider, a rentable cloud pool, a peripheral behind a host. <strong>It does not run the work.</strong> The node agent does.</p>
@@ -90,7 +90,19 @@
 <li><strong>Single node. No signed placements or grants. Plain HTTP.</strong></li>
 </ul>
 <h2 id="several-nodes">Several nodes</h2>
-<p>The design is a <strong>star</strong>: one registry host, an executor on every node, <strong>outbound-only</strong> connections from the nodes, and <strong>mutual TLS</strong> on the one inbound port. It also includes a heartbeat route so a node can refresh its own lease, an operator CLI, and a lease keeper that renews holds and re-places work before the lease cap. It has been built and reviewed against a simulated cluster of Docker-in-Docker nodes, not against live machines.</p>
+<p>The design is a <strong>star</strong>: one registry host, an executor on every node, <strong>outbound-only</strong> connections from the nodes, and <strong>mutual TLS</strong> on the one inbound port. It also includes:</p>
+<ul>
+<li>a heartbeat route, so a node can refresh its own lease;</li>
+<li>an operator CLI;</li>
+<li>a lease keeper that renews holds and re-places work before the lease cap.</li>
+</ul>
+<p>A four-machine lab cluster now runs it, with a default-deny policy on every node and no workloads placed yet. Tests on the real machines:</p>
+<ul>
+<li>placed work through the tunnel;</li>
+<li>spread work across nodes;</li>
+<li>refused work that did not fit;</li>
+<li>survived a partition: the cut-off node stopped its workload at the lease end, not before.</li>
+</ul>
 <h2 id="next">Next</h2>
 <p><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></p>
 <div class="pager"><a href="05-nodes.html" rel="prev">← 5. Nodes</a><a href="07-grants-and-enforcement.html" rel="next">7. Grants and enforcement →</a></div>

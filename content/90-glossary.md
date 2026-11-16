@@ -23,6 +23,7 @@ title: "Glossary"
 | **Executor** | The process that follows `venued`'s feed and runs containers |
 | **Fencing token** | `(registry key id, incarnation, hold revision)`, minted by the registry |
 | **Full node** | A node that hosts services |
+| **Full-trust host** | A host where the presenter is the compositor, so consent cannot be covered or faked |
 | **Glue** | A service adapter that exposes an upstream service as nodes in the namespace |
 | **Grant** | An owner-signed, typed, attenuable, offline-verifiable permission to use or egress a resource |
 | **Grant request** | A signed statement that a component on a node requests a typed resource, operations and a TTL |
@@ -42,12 +43,14 @@ title: "Glossary"
 | **Node contract** | The document everything else is specified against |
 | **Owner** | The person whose key was pinned on the node at claim |
 | **Partition policy** | Per workload: *replace*, *hold* or *self-stop* if the registry is lost |
+| **Peer link** | The direct, mutually authenticated connection between two devices on a LAN |
 | **Placement** | A Venue decision about where work runs. Not an authorization |
 | **PoP** | Proof of possession of a device key |
 | **Presenter** | The server that renders an app's interface, routes input and mediates consent |
 | **Presenter class** | *Window class* (multi-window) or *pane class* (a single pane) |
 | **Presenter spec** | The open specification of what an app may say to a presenter |
 | **R (message)** | A server response to a T, with the same tag |
+| **Reduced-trust host** | A host that offers only a user-presence prompt: grants are read-only and short-lived |
 | **Registry key** | The key the registry signs placements with; separate from its TLS key |
 | **Release id** | The hash of a lock's contents |
 | **Role** | An owner-signed assignment of what a node may do |
@@ -56,7 +59,7 @@ title: "Glossary"
 | **Signer** | The separate process, holding an attenuated delegate key, that issues grants after consent |
 | **T (message)** | A client request; the server answers with exactly one R or `RError` |
 | **Tag** | The per-message correlation id |
-| **Trusted display path** | The host's secure UI, which a compromised presenter cannot fake |
+| **Trusted display path** | The presenter's ownership of the display and input path, so a compromised app or presenter cannot fake what the user sees |
 | **Typed address** | A resource address parsed once into a typed value that rejects non-canonical spellings |
 | **Venue** | The registry, planner and ledger for places work can run |
 | **`venued`** | Venue's daemon: JSON over HTTP, a token per app, a long-poll event feed |

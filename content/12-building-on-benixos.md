@@ -26,7 +26,7 @@ A component is a single artifact, about 100 KB for a minimal one, built with the
 - The clock is allowed, by design.
 - CPU is bounded by fuel, and memory by a cap.
 
-The app's **only way out** is one endpoint on the node-local bus. It sends and receives opaque frames, and the grammar of those frames is the [presenter spec](13-presenters.html). Frames speak the gateway's namespace operations, so an app reaches household resources the same way any other client does.
+The app's **only way out** is one endpoint on the node-local bus, carried by Message Kit. It sends and receives opaque frames, and the grammar of those frames is the [presenter spec](13-presenters.html). Frames speak the gateway's namespace operations, so an app reaches household resources the same way any other client does.
 
 ```text
 interface endpoint {
@@ -40,7 +40,7 @@ world app {
 }
 ```
 
-The model is reactive: the loader calls `deliver` for each frame. Clocks and randomness stay as standard imports. WASI 0.3 is ratified, but the Rust toolchain for it is not ready, and the app model does not need async yet.
+The model is reactive: the loader calls `deliver` for each frame. Clocks and randomness stay as standard imports. WASI 0.3 is ratified, and a prototype runs an asynchronous guest, but the Rust toolchain needs a nightly compiler and a hand-supplied sysroot. The app model does not need async yet.
 
 ### The loader
 

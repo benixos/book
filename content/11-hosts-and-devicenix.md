@@ -46,10 +46,10 @@ A first cut, to be settled by testing:
 | Rootless runtime | per image | rootless Podman | a VM backend only | WSL2 or a VM | none |
 | Local IPC | seqpacket, kernel peer creds | seqpacket | stream-framed (to build) | named pipe (to build) | n/a |
 | Cgroup limits | to build | yes | no | no | n/a |
-| Trusted display path | to build | to build | host secure UI | host secure UI | host secure UI |
+| Trusted display path (full trust) | design target: the window shell as compositor | design target: the window shell as compositor | reduced trust | reduced trust | reduced trust |
 | Update | A/B image | OS package manager | signed package | `benix-update` | store |
 
-A host without a **trusted display path** is a reduced-trust host: consent cannot be shown in a way a compromised presenter cannot fake ([Presenters](13-presenters.html)). On Linux the window shell can run as the compositor.
+**Full trust is a property of the presenter owning the display and the input path**, as a compositor does. A host that only offers a user-presence prompt, such as a fingerprint or passkey dialog, proves *that* someone consented, not *what* they saw, so it is a reduced-trust host ([Presenters](13-presenters.html)). On Linux the window shell can run as the compositor. No current build earns full trust yet.
 
 The local bus uses `AF_UNIX SOCK_SEQPACKET`, which does not run on macOS. The proposed fix is length-prefixed framing over a stream socket carrying the same envelope bytes. Windows would use named pipes. **Loopback TCP is not allowed for the agent**: it has no peer identity.
 

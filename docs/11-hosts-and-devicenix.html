@@ -127,12 +127,12 @@
 <td>n/a</td>
 </tr>
 <tr>
-<td>Trusted display path</td>
-<td>to build</td>
-<td>to build</td>
-<td>host secure UI</td>
-<td>host secure UI</td>
-<td>host secure UI</td>
+<td>Trusted display path (full trust)</td>
+<td>design target: the window shell as compositor</td>
+<td>design target: the window shell as compositor</td>
+<td>reduced trust</td>
+<td>reduced trust</td>
+<td>reduced trust</td>
 </tr>
 <tr>
 <td>Update</td>
@@ -144,7 +144,7 @@
 </tr>
 </tbody>
 </table></div>
-<p>A host without a <strong>trusted display path</strong> is a reduced-trust host: consent cannot be shown in a way a compromised presenter cannot fake (<a href="13-presenters.html">Presenters</a>). On Linux the window shell can run as the compositor.</p>
+<p><strong>Full trust is a property of the presenter owning the display and the input path</strong>, as a compositor does. A host that only offers a user-presence prompt, such as a fingerprint or passkey dialog, proves <em>that</em> someone consented, not <em>what</em> they saw, so it is a reduced-trust host (<a href="13-presenters.html">Presenters</a>). On Linux the window shell can run as the compositor. No current build earns full trust yet.</p>
 <p>The local bus uses <code>AF_UNIX SOCK_SEQPACKET</code>, which does not run on macOS. The proposed fix is length-prefixed framing over a stream socket carrying the same envelope bytes. Windows would use named pipes. <strong>Loopback TCP is not allowed for the agent</strong>: it has no peer identity.</p>
 <h2 id="reference-hardware">Reference hardware</h2>
 <p>Two reference families: a Raspberry Pi 5 and compute-module class, and an AMD64 micro-ATX class. DeviceNix consumes their board bring-up and peripheral support from a separate hardware program.</p>
