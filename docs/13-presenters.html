@@ -5,12 +5,12 @@
 <meta name="description" content="Draft. The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a load">
 <link rel="stylesheet" href="assets/site.css">
 </head><body><div class="wrap">
-<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html" aria-current="page">13. Presenters</a></li><li class="grp">Practice</li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status.html">15. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li><a href="13-presenters.html" aria-current="page">13. Presenters</a></li><li><a href="14-presenter-trust.html">14. Presenter trust</a></li><li class="grp">Practice</li><li><a href="15-security-model.html">15. The security model</a></li><li><a href="16-status.html">16. Status</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
 <main>
 <h1 id="13-presenters">13. Presenters</h1>
 <div class="callout callout-info">
 <p class="callout-title">State</p>
-<p><strong>Draft.</strong> The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a loader, a presenter core, a separate signer, an owner-signed roster, a LAN peer link and a headless compositor. <strong>No presenter ships yet, and no build earns full trust.</strong></p>
+<p><strong>Draft.</strong> The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a loader, a presenter core, a separate signer, an owner-signed roster, a LAN peer link, a headless compositor, and a sandboxed renderer in the real path. <strong>No presenter ships yet.</strong> How a presenter earns trust is in <a href="14-presenter-trust.html">Presenter trust</a>.</p>
 </div>
 
 <p>Apps do not draw. They describe their interface in terms of meaning, and a <strong>presenter</strong> renders it. The presenter owns widgets, layout, text editing, accessibility, theming, the window tree, focus and input routing. It also mediates the clipboard, drag and drop, and capture.</p>
@@ -84,12 +84,12 @@
 <td>A jitterless retry loop makes congestion worse</td>
 </tr>
 <tr>
-<td><strong>Input is idempotent</strong>, with a client sequence number, and some classes are droppable</td>
-<td>Retries and drops must be safe</td>
+<td><strong>Input is idempotent</strong>: a sequence number <em>and</em> an epoch for the sender's incarnation, and some classes are droppable</td>
+<td>A sequence number alone is wrong: a restarted sender starts over, and a stale one can claim a huge number</td>
 </tr>
 <tr>
-<td><strong>Signed objects use a strict deterministic encoding</strong> with bounded depth and size, verified over the received bytes and never re-encoded</td>
-<td>Two independent implementations must agree, and a signature must not depend on re-encoding</td>
+<td><strong>Frames and signed objects use one deterministic CBOR codec</strong> with bounded depth and size and two limit profiles: unknown keys are ignored in frames and refused in trust objects. Signed bytes are verified as received, never re-encoded</td>
+<td>Two independent implementations must agree, and golden byte vectors pin the format</td>
 </tr>
 <tr>
 <td><strong>An unknown topic looks the same as a hidden endpoint</strong>, and still gets one terminal reply</td>
@@ -124,13 +124,14 @@
 <p>All three carry the same sealed envelopes. A hub is tuned for household state, not for interactive streams.</p>
 <p>If no direct path exists, the presenter shows the <strong>last cached snapshot, read-only, with a visible "no direct connection" state</strong>. A class of view that cannot degrade this way is refused.</p>
 <p><strong>Transport is never an authorization input.</strong> A direct path bypasses a hub's revocation check, so authority comes only from grants. A remote message does not carry its sender's identity in the base transport, so the peer-link provider checks a signed sender device id against the authenticated device and drops mismatches. That is attribution, never authorization.</p>
+<p>On the LAN, discovery is a hint only: the TLS pin decides identity. The advertised identifier rotates every 15 minutes and is keyed by a household secret in the owner-signed roster, so an observer cannot link a device across time or compute future identifiers from its public key.</p>
 <p>Work remaining on the wire is additive: carrier profiles for the peer link and the data channel, a device-key peer-authentication arm on the session hello, and a push-wake registration field. The first scope is the LAN and BenixOS; the WAN comes later.</p>
 <pre><code class="language-mermaid">flowchart TB
   subgraph NODE[&quot;Node (runs the app)&quot;]
     APP[&quot;App&lt;br/&gt;Wasm component&quot;] --- LDR[&quot;Loader&lt;br/&gt;attests the component digest&quot;]
   end
   subgraph DEV[&quot;Device (shows the app)&quot;]
-    PRES[&quot;Presenter&lt;br/&gt;window or pane class&quot;]
+    PRES[&quot;Presenter&lt;br/&gt;supervisor, compositor,&lt;br/&gt;sandboxed renderer&quot;]
     SIG[&quot;Signer&lt;br/&gt;attenuated delegate key&quot;]
     PRES -- &quot;consent shown, then grant requested&quot; --&gt; SIG
   end
@@ -139,41 +140,9 @@
   HUB -.- PRES
   HUB -.- LDR
 </code></pre>
-<h2 id="the-trust-path">The trust path</h2>
-<p>An app must never emit anything that a presenter treats as trusted. Consent is therefore built from outside the app:</p>
-<ol>
-<li>The loader or node <strong>signs a grant request</strong>: "component D on node N requests typed resource R, these operations, this TTL".</li>
-<li>The presenter verifies it against the roster, checks the owner's admission, and parses R <strong>once</strong> to a canonical value.</li>
-<li>The presenter renders the consent text <strong>from its own template, in reserved chrome</strong>.</li>
-<li>After a <strong>fresh user gesture</strong>, a separate <strong>signer</strong> issues the grant.</li>
-</ol>
-<p>Minimums for the spec:</p>
-<ul>
-<li>The presenter holds only an <strong>attenuated delegate key</strong>, inside a <strong>separate signer</strong> that re-derives the consent text from the grant bytes.</li>
-<li>The <strong>consent kind is reserved.</strong> Any app tree containing it is refused.</li>
-<li><strong>App identity is the loader-attested component digest</strong>, never the descriptor's title, shown in chrome an app cannot draw.</li>
-<li>Every cross-node view stream carries an <strong>origin binding</strong> (node key, component digest, placement id, nonce) signed inside the sealed payload.</li>
-<li><strong>Clipboard, drag and drop, and capture are one-shot grants</strong> bound to a user gesture.</li>
-</ul>
-<p>Each minimum has a conformance fixture. For example, a fake consent descriptor from an app must be refused, and a recording mock proves the signer was never called.</p>
-<p>The open window shell must be a <strong>complete, conformant consent implementation</strong>. Consent correctness cannot depend on any other presenter.</p>
-<p>Grants are short-lived (draft values): at most an hour, or 15 minutes on a reduced-trust host, and delegations at most 30 days. Revocation is the short lifetime plus an owner-signed revocation list with a monotonic serial, exchanged on every peer-link handshake. <strong>Revoking a device ends its live sessions</strong>, not only its future handshakes.</p>
-<h3 id="the-trusted-display-path">The trusted display path</h3>
-<p>A presenter that is fully compromised can lie about what it displayed. The defence is for the presenter to own the display and the input path.</p>
-<ul>
-<li>A <strong>full-trust host</strong> is one where the presenter is the compositor. It draws the consent layer above everything, and no client receives input during a prompt.</li>
-<li>A host that only offers a user-presence prompt proves <em>that</em> someone consented, not <em>what</em> they saw. It is a <strong>reduced-trust host</strong>: grants there are read-only with a short ceiling, and anything wider is confirmed on a full-trust device.</li>
-</ul>
-<p>The grant records the host's trust class, and the spec states what it requires of each.</p>
-<h3 id="known-gaps">Known gaps</h3>
-<ul>
-<li><strong>Chrome shows who is asking, not what.</strong> An app can still draw a convincing "enter your password" screen that passes validation. The spec needs a rule: presenter-owned secret inputs, or a visible warning on app-owned fields.</li>
-<li><strong>No build earns full trust yet.</strong> A headless compositor prototype shows the layering is right. It still needs a physical input path, a signer running under a separate user id, attestation keyed by process handle, one unprivileged renderer process per instance, and structured consent fields.</li>
-<li><strong>The signer and the presenter share verification code</strong>, including the roster verifier, in the prototype. Production needs independent implementations.</li>
-</ul>
 <h2 id="next">Next</h2>
-<p><a href="14-security-model.html">14. The security model</a></p>
-<div class="pager"><a href="12-building-on-benixos.html" rel="prev">← 12. Building on BenixOS</a><a href="14-security-model.html" rel="next">14. The security model →</a></div>
+<p><a href="14-presenter-trust.html">14. Presenter trust</a></p>
+<div class="pager"><a href="12-building-on-benixos.html" rel="prev">← 12. Building on BenixOS</a><a href="14-presenter-trust.html" rel="next">14. Presenter trust →</a></div>
 <footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
 </main></div>
 <script src="assets/vendor/mermaid.min.js" defer></script><script src="assets/site.js" defer></script>

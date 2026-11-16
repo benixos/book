@@ -28,7 +28,7 @@ The Venue node agent takes **resource provision and placement enforcement**. The
 |---|---|---|
 | Hub aggregation and routing | gateway | gateway |
 | Install request and consent | gateway | gateway |
-| Grant minting | gateway | owner-signed, through the signer ([Presenters](13-presenters.html)) |
+| Grant minting | gateway | owner-signed, through the signer ([Presenter trust](14-presenter-trust.html)) |
 | Service runtime | gateway | node agent |
 | Placement enforcement | none | node agent |
 | Scheduler | not built | Venue's planner |

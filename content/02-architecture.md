@@ -15,7 +15,7 @@ title: "2. Architecture"
 |---|---|---|
 | **Applications** | Wasm components, ported containers, household services, automation, operator tools | 12 |
 | **Kits** | The framework layer: one Kit per domain | 4 |
-| **System servers** | The registry, the node agent, the loader, presenters, the signer, the gateway, glues, claim and discovery | 5, 6, 8, 13 |
+| **System servers** | The registry, the node agent, the loader, presenters, the signer, the gateway, glues, claim and discovery | 5, 6, 8, 13, 14 |
 | **Node contract and wire** | Hearth, namespace operations, the node contract, capability grants | 3, 7 |
 | **Node runtime** | `libbenix`, a container runtime, the local bus | 11 |
 | **Hosts** | DeviceNix, Ubuntu and Debian, macOS, Windows | 11 |

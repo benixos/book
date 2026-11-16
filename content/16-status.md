@@ -1,8 +1,8 @@
 ---
-title: "15. Status"
+title: "16. Status"
 ---
 
-# 15. Status
+# 16. Status
 
 > [!info] State
 > A snapshot at **16 November 2026**. Where this page and a repository disagree, the repository is right.
@@ -27,6 +27,7 @@ title: "15. Status"
 | Owner-signed roster and LAN peer link | Prototype |
 | Wasm loader and signer | Prototype |
 | Window shell (Casement) | Prototype (headless compositor); does not yet earn full trust |
+| Sandboxed presenter renderer | Prototype: one process per instance, in the real LAN path |
 
 ## Not yet built
 
@@ -39,7 +40,8 @@ title: "15. Status"
 - A demonstrated DeviceNix rollback
 - A stable API on any Kit
 - A frozen presenter spec, and a presenter with a live window
-- A full-trust host: a physical input path and a separate signer user id
+- A full-trust host: a physical input path, a separate signer user id, and a separate user id per renderer
+- Owner-key rotation, roster roles and enrollment
 - Independent presenter and signer implementations
 - A direct path across the WAN
 - A production toolchain for asynchronous components

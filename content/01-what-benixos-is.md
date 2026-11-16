@@ -5,7 +5,7 @@ title: "1. What BenixOS is"
 # 1. What BenixOS is
 
 > [!info] State
-> **Partial.** The definition and vocabulary are settled. The system is partly built; see [Status](15-status.html).
+> **Partial.** The definition and vocabulary are settled. The system is partly built; see [Status](16-status.html).
 
 BenixOS is a distributed operating system: one namespace, identity, placement and storage across every machine a person or household owns. It is composed of **Kits**, speaks the **Hearth** protocol, and runs on any **host** that meets a small **node contract**.
 

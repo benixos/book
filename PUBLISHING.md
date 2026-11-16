@@ -70,4 +70,4 @@ Revert the merge commit on `main` and push. The previous `docs/` is published ag
 
 ## Updating Mermaid
 
-`assets/vendor/mermaid.min.js` is a pinned, unmodified copy (see `assets/vendor/README.md`). To update it, download the new release from the same CDN path, replace the file and its licence, update the version in the README, rebuild, and look at every page that has a diagram: `02`, `04`, `06` and `09`.
+`assets/vendor/mermaid.min.js` is a pinned, unmodified copy (see `assets/vendor/README.md`). To update it, download the new release from the same CDN path, replace the file and its licence, update the version in the README, rebuild, and look at every page that has a diagram: `02`, `04`, `06`, `09` and `13`.

@@ -5,7 +5,7 @@ title: "13. Presenters"
 # 13. Presenters
 
 > [!info] State
-> **Draft.** The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a loader, a presenter core, a separate signer, an owner-signed roster, a LAN peer link and a headless compositor. **No presenter ships yet, and no build earns full trust.**
+> **Draft.** The design is settled in outline, and a draft spec marks each requirement as tested, specified, or required but not built. A local prototype has exercised it end to end: a sandboxed app, a loader, a presenter core, a separate signer, an owner-signed roster, a LAN peer link, a headless compositor, and a sandboxed renderer in the real path. **No presenter ships yet.** How a presenter earns trust is in [Presenter trust](14-presenter-trust.html).
 
 Apps do not draw. They describe their interface in terms of meaning, and a **presenter** renders it. The presenter owns widgets, layout, text editing, accessibility, theming, the window tree, focus and input routing. It also mediates the clipboard, drag and drop, and capture.
 
@@ -48,8 +48,8 @@ A prototype found requirements the spec must state:
 | **A credit window**, counted in patches and bytes | The app cannot outrun the presenter |
 | **Snapshot, then deltas.** Resync is re-requested until it succeeds, and no credit is granted while out of sync | A single lost resync request otherwise livelocks a lossy link |
 | **Snapshot retries use stop-and-wait with exponential backoff and jitter** | A jitterless retry loop makes congestion worse |
-| **Input is idempotent**, with a client sequence number, and some classes are droppable | Retries and drops must be safe |
-| **Signed objects use a strict deterministic encoding** with bounded depth and size, verified over the received bytes and never re-encoded | Two independent implementations must agree, and a signature must not depend on re-encoding |
+| **Input is idempotent**: a sequence number *and* an epoch for the sender's incarnation, and some classes are droppable | A sequence number alone is wrong: a restarted sender starts over, and a stale one can claim a huge number |
+| **Frames and signed objects use one deterministic CBOR codec** with bounded depth and size and two limit profiles: unknown keys are ignored in frames and refused in trust objects. Signed bytes are verified as received, never re-encoded | Two independent implementations must agree, and golden byte vectors pin the format |
 | **An unknown topic looks the same as a hidden endpoint**, and still gets one terminal reply | Probing cannot map what exists, and no caller hangs |
 
 ## Where the traffic flows
@@ -68,6 +68,8 @@ If no direct path exists, the presenter shows the **last cached snapshot, read-o
 
 **Transport is never an authorization input.** A direct path bypasses a hub's revocation check, so authority comes only from grants. A remote message does not carry its sender's identity in the base transport, so the peer-link provider checks a signed sender device id against the authenticated device and drops mismatches. That is attribution, never authorization.
 
+On the LAN, discovery is a hint only: the TLS pin decides identity. The advertised identifier rotates every 15 minutes and is keyed by a household secret in the owner-signed roster, so an observer cannot link a device across time or compute future identifiers from its public key.
+
 Work remaining on the wire is additive: carrier profiles for the peer link and the data channel, a device-key peer-authentication arm on the session hello, and a push-wake registration field. The first scope is the LAN and BenixOS; the WAN comes later.
 
 ```mermaid
@@ -76,7 +78,7 @@ flowchart TB
     APP["App<br/>Wasm component"] --- LDR["Loader<br/>attests the component digest"]
   end
   subgraph DEV["Device (shows the app)"]
-    PRES["Presenter<br/>window or pane class"]
+    PRES["Presenter<br/>supervisor, compositor,<br/>sandboxed renderer"]
     SIG["Signer<br/>attenuated delegate key"]
     PRES -- "consent shown, then grant requested" --> SIG
   end
@@ -86,44 +88,6 @@ flowchart TB
   HUB -.- LDR
 ```
 
-## The trust path
-
-An app must never emit anything that a presenter treats as trusted. Consent is therefore built from outside the app:
-
-1. The loader or node **signs a grant request**: "component D on node N requests typed resource R, these operations, this TTL".
-2. The presenter verifies it against the roster, checks the owner's admission, and parses R **once** to a canonical value.
-3. The presenter renders the consent text **from its own template, in reserved chrome**.
-4. After a **fresh user gesture**, a separate **signer** issues the grant.
-
-Minimums for the spec:
-
-- The presenter holds only an **attenuated delegate key**, inside a **separate signer** that re-derives the consent text from the grant bytes.
-- The **consent kind is reserved.** Any app tree containing it is refused.
-- **App identity is the loader-attested component digest**, never the descriptor's title, shown in chrome an app cannot draw.
-- Every cross-node view stream carries an **origin binding** (node key, component digest, placement id, nonce) signed inside the sealed payload.
-- **Clipboard, drag and drop, and capture are one-shot grants** bound to a user gesture.
-
-Each minimum has a conformance fixture. For example, a fake consent descriptor from an app must be refused, and a recording mock proves the signer was never called.
-
-The open window shell must be a **complete, conformant consent implementation**. Consent correctness cannot depend on any other presenter.
-
-Grants are short-lived (draft values): at most an hour, or 15 minutes on a reduced-trust host, and delegations at most 30 days. Revocation is the short lifetime plus an owner-signed revocation list with a monotonic serial, exchanged on every peer-link handshake. **Revoking a device ends its live sessions**, not only its future handshakes.
-
-### The trusted display path
-
-A presenter that is fully compromised can lie about what it displayed. The defence is for the presenter to own the display and the input path.
-
-- A **full-trust host** is one where the presenter is the compositor. It draws the consent layer above everything, and no client receives input during a prompt.
-- A host that only offers a user-presence prompt proves *that* someone consented, not *what* they saw. It is a **reduced-trust host**: grants there are read-only with a short ceiling, and anything wider is confirmed on a full-trust device.
-
-The grant records the host's trust class, and the spec states what it requires of each.
-
-### Known gaps
-
-- **Chrome shows who is asking, not what.** An app can still draw a convincing "enter your password" screen that passes validation. The spec needs a rule: presenter-owned secret inputs, or a visible warning on app-owned fields.
-- **No build earns full trust yet.** A headless compositor prototype shows the layering is right. It still needs a physical input path, a signer running under a separate user id, attestation keyed by process handle, one unprivileged renderer process per instance, and structured consent fields.
-- **The signer and the presenter share verification code**, including the roster verifier, in the prototype. Production needs independent implementations.
-
 ## Next
 
-[14. The security model](14-security-model.html)
+[14. Presenter trust](14-presenter-trust.html)

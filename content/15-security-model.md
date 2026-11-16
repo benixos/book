@@ -1,8 +1,8 @@
 ---
-title: "14. The security model"
+title: "15. The security model"
 ---
 
-# 14. The security model
+# 15. The security model
 
 > [!info] State
 > **A design with a small built core.** Built: the executor's default-deny policy, container identity and lease handling, and a signed-channel prototype with throwaway keys. **Draft:** owner-signed grants, signed placements, sealing of node messages and typed addresses. This page summarises the design; it is not a threat model.
@@ -48,8 +48,11 @@ title: "14. The security model"
 | **A workload escapes or exfiltrates** | Read-only root, dropped capabilities, non-root uid, isolated network | Built; egress is open |
 | **Binary services have no sandbox** | A separate process group and cleared environment only | Gap |
 | **A hostile component** | No ambient authority; bounded CPU and memory; one process per instance | Prototype |
-| **A hostile tree crashes the presenter** | A non-recursive wire form, with depth and size enforced while reading | Draft |
-| **An app fakes a consent screen** | The consent kind is reserved; consent is rendered from the presenter's own template | Draft |
+| **A hostile tree crashes the presenter** | A non-recursive wire form, with depth and size enforced at decode before anything is allocated; the renderer is isolated per instance | Prototype |
+| **An app fakes a consent screen** | The consent kind is reserved; consent is rendered from structured fields the compositor owns | Prototype |
+| **A name reads as part of the request** (injected text or look-alike characters) | Structured fields and a name profile | Prototype |
+| **A malicious tree exploits the renderer** | One sandboxed process per instance, outside the trusted base, which refuses to run unsandboxed | Prototype; shares the user's id |
+| **An observer links a device by its LAN advertisement** | A rotating identifier keyed by a household secret | Prototype |
 | **In-app phishing** (chrome shows who, not what) | A rule is needed: presenter-owned secret inputs or a visible warning | Gap |
 | **A compromised presenter lies about what it showed** | A trusted display path: the presenter owns the display and input (a full-trust host). Elsewhere, a reduced-trust class with read-only, short-lived grants | Gap: no build earns full trust yet |
 | **A tag re-pushed to different bytes** | Pin the manifest digest at admission | Draft |
@@ -58,4 +61,4 @@ title: "14. The security model"
 
 ## Next
 
-[15. Status](15-status.html)
+[16. Status](16-status.html)
