@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>8. The gateway and services · The BenixOS Book</title>
+<meta name="description" content="Gateway: Built and live, private source (Apache-2.0 licensed). A 12-crate Rust workspace with 266 tests as of 11 November 2026, and released binaries. No gateway image and no compose file. The split i">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html" aria-current="page">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="8-the-gateway-and-services">8. The gateway and services</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p><strong>Gateway: Built and live</strong>, private source (Apache-2.0 licensed). A 12-crate Rust workspace with 266 tests as of 11 November 2026, and released binaries. <strong>No gateway image and no compose file.</strong> The split into a node agent and a smaller gateway is agreed in principle and <strong>Draft</strong> in detail.</p>
+</div>
+
+<h2 id="what-the-gateway-is-today">What the gateway is today</h2>
+<p>The per-device <strong>fabric edge</strong> of the household. One process does all of these:</p>
+<ul>
+<li><strong>fabric edge</strong> (talks to the hub, speaks Hearth),</li>
+<li><strong>resource provider</strong> (the "virtual cluster"),</li>
+<li><strong>service runtime</strong> (<code>docker_runtime.rs</code>),</li>
+<li><strong>installer</strong> and app store,</li>
+<li><strong>namespace normaliser</strong>,</li>
+<li><strong>capability gate</strong> (<code>qr-cap</code>).</li>
+</ul>
+<p>Crates include <code>qr-gateway</code>, <code>qr-cap</code>, <code>qr-web</code>, <code>qr-cli</code>, <code>qr-remote</code> and the <code>qr-glue-*</code> service glues. It runs with no hub: with <code>HUB_URL</code> unset it logs "fabric edge disabled (local-only)".</p>
+<h2 id="what-it-becomes">What it becomes</h2>
+<p>The plan: the Venue resident agent takes <strong>resource provision and placement enforcement</strong>. The gateway keeps an <strong>optional cross-network router</strong> plus a <strong>system-administration and user-management layer</strong>.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Today</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hub aggregation and routing</td>
+<td>gateway</td>
+<td>gateway</td>
+</tr>
+<tr>
+<td>Install request and consent</td>
+<td>gateway</td>
+<td>gateway</td>
+</tr>
+<tr>
+<td>Grant minting</td>
+<td>gateway (<code>qr-cap</code>)</td>
+<td><strong>owner-signed</strong>, through a separate thin layer; the gateway must not hold a key that acts as a household key</td>
+</tr>
+<tr>
+<td>Service runtime</td>
+<td>gateway (<code>docker_runtime.rs</code>)</td>
+<td><strong>node agent</strong>, behind a runtime trait first; migration to <code>substrate-kit</code> later</td>
+</tr>
+<tr>
+<td>Placement enforcement</td>
+<td>none</td>
+<td>node agent</td>
+</tr>
+<tr>
+<td>Scheduler (item D)</td>
+<td><strong>not built</strong></td>
+<td><strong>absorbed by Venue's planner</strong></td>
+</tr>
+<tr>
+<td>Local hub role</td>
+<td>gateway, only mDNS shipped</td>
+<td>the <strong>hub binary's local mode</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>It stays <strong>one repo and one install command</strong>, but two units: a node agent and the gateway.</p>
+<h2 id="service-glues">Service glues</h2>
+<p>A <strong>glue</strong> is a service adapter: it exposes an upstream service (Home Assistant, an HTTP service, Pi-hole, Frigate, Jellyfin) as nodes in the namespace. Glues are <strong>service adapters, not gateway features.</strong></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Glue</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qr-glue-ha</code></td>
+<td>Home Assistant</td>
+</tr>
+<tr>
+<td><code>qr-glue-http</code></td>
+<td>Generic HTTP</td>
+</tr>
+<tr>
+<td><code>qr-glue-pihole</code>, <code>qr-glue-frigate</code></td>
+<td>Dockerfiles in the gateway repo</td>
+</tr>
+<tr>
+<td>Jellyfin</td>
+<td>Has live tests; manifest drift across three copies</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Glue must bind loopback and require auth.</strong> The plan makes glue reachable only by the node agent, with a token required off loopback.</p>
+<h2 id="the-service-catalog">The service catalog</h2>
+<p><code>service-catalog</code> holds <strong>11 manifests</strong>, data only. It is the de facto package format. Debts it carries: only 1 of 16 is provisionable in the distribution schema (the rest are connectors), 20 floating artifacts including every glue image, and no manifest declares <code>provides</code>, <code>requires</code>, consumers or a publisher. The images for the HA and HTTP glues are hosted privately, so an outside reader cannot build them.</p>
+<h2 id="the-namespace-op-set-qr-proto">The namespace op-set (<code>qr-proto</code>)</h2>
+<p>The gateway speaks a namespace protocol: <strong>walk, read, write, invoke, watch, manifest</strong>. It is <strong>experimental and not frozen</strong>. The plan is to extract it into the system tree as a separate spec with a Hearth <code>payload_type</code> binding. It is the BenixOS equivalent of Plan 9's file operations over a household.</p>
+<h2 id="the-gateway-led-mvp-and-why-it-was-set-aside">The gateway-led MVP, and why it was set aside</h2>
+<p>The first bootstrap plan proposed <strong>MVP-A</strong>: a gateway bundle. The project then chose <strong>Venue first</strong> (<a href="06-venue.html">Venue</a>), which delivers the actual BenixOS shape (place, run, lease, ledger on one node). The gateway, glue and Jellyfin become <strong>workloads Venue places</strong> rather than the vehicle. The Venue-led route also builds from source for anyone, because <code>venue-kit</code> has only public dependencies, whereas the gateway depends on privately hosted crates.</p>
+<h2 id="next">Next</h2>
+<p><a href="09-distribution.html">9. Distribution</a></p>
+<div class="pager"><a href="07-grants-and-enforcement.html" rel="prev">← 7. Grants and enforcement</a><a href="09-distribution.html" rel="next">9. Distribution →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/site.js" defer></script>
+</body></html>

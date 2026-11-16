@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13. The one-node bundle · The BenixOS Book</title>
+<meta name="description" content="Built, not yet published. The bundle runs on one machine and passed its 133-check exit test on Ubuntu 26.04 (amd64) and on macOS Docker Desktop (arm64, earlier code). It builds against a Venue Kit che">
+<link rel="stylesheet" href="assets/site.css">
+</head><body><div class="wrap">
+<nav class="side" aria-label="Chapters"><a class="brand" href="index.html">The BenixOS Book</a><details id="nav" open><summary>Chapters</summary><ul><li class="grp">What it is</li><li><a href="01-what-benixos-is.html">1. What BenixOS is</a></li><li><a href="02-architecture.html">2. Architecture</a></li><li class="grp">Foundations</li><li><a href="03-hearth.html">3. Hearth</a></li><li><a href="04-kits.html">4. Kits</a></li><li class="grp">The system</li><li><a href="05-nodes.html">5. Nodes</a></li><li><a href="06-venue.html">6. Venue</a></li><li><a href="07-grants-and-enforcement.html">7. Grants and enforcement</a></li><li><a href="08-gateway-and-services.html">8. The gateway and services</a></li><li><a href="09-distribution.html">9. Distribution</a></li><li><a href="10-data-and-identity.html">10. Data and identity</a></li><li class="grp">Underneath and on top</li><li><a href="11-hosts-and-devicenix.html">11. Hosts and DeviceNix</a></li><li><a href="12-building-on-benixos.html">12. Building on BenixOS</a></li><li class="grp">Practice</li><li><a href="13-one-node-bundle.html" aria-current="page">13. The one-node bundle</a></li><li><a href="14-security-model.html">14. The security model</a></li><li><a href="15-status-and-roadmap.html">15. Status and roadmap</a></li><li><a href="16-open-questions.html">16. Open questions</a></li><li class="grp">Reference</li><li><a href="90-glossary.html">Glossary</a></li><li><a href="about.html">About this book</a></li></ul></details></nav>
+<main>
+<h1 id="13-the-one-node-bundle">13. The one-node bundle</h1>
+<div class="callout callout-info">
+<p class="callout-title">State</p>
+<p><strong>Built, not yet published.</strong> The bundle runs on one machine and passed its 133-check exit test on Ubuntu 26.04 (amd64) and on macOS Docker Desktop (arm64, earlier code). It builds against a Venue Kit checkout plus three unmerged patches, and no images are published. This page describes what it does. It is not an install guide.</p>
+</div>
+
+<p>The one-node bundle is the first way to run the BenixOS placement path. <code>docker compose up -d</code> on one machine starts:</p>
+<ul>
+<li><strong><code>venued</code></strong>, the Venue API, where reservations are called <em>holds</em>;</li>
+<li><strong><code>venue-node</code></strong>, the executor, <strong>the only container with Docker access</strong>;</li>
+<li>two short-lived init containers: one creates the registry and mints the executor's token, the other creates the workload network.</li>
+</ul>
+<p>A hold followed by a start runs a container, <strong>but only if a local, default-deny policy allows it.</strong></p>
+<h2 id="what-it-needs">What it needs</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host</td>
+<td>A Linux machine (Ubuntu 26.04 amd64 was the verified one) or Docker Desktop on macOS</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td><strong>Engine 28 or newer.</strong> Older engines let hosts on the same network segment reach ports published on loopback. The executor refuses to start on an older or unknown version unless told to.</td>
+</tr>
+<tr>
+<td>Node name</td>
+<td><strong>Required, with no default.</strong> A registry created under another name is refused.</td>
+</tr>
+<tr>
+<td>Docker group id</td>
+<td>The host's real <code>docker</code> group id on Linux</td>
+</tr>
+<tr>
+<td>Policy</td>
+<td>An owner-written allowlist. <strong>Nothing runs until an image is allowed by digest.</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="what-it-does">What it does</h2>
+<ol>
+<li>The operator mints a token that selects a manager.</li>
+<li>The owner puts an image digest on the allowlist and restarts the executor.</li>
+<li>An app places a hold with a Placement document that carries the workload spec.</li>
+<li>A start order makes the executor pull the image and run it under the hardening listed in <a href="07-grants-and-enforcement.html">Grants and enforcement</a>.</li>
+<li>A release removes the container.</li>
+</ol>
+<p>A workload that is privileged, mounts <code>docker.sock</code>, names a disallowed image, uses a <code>..</code> path or a plain relative mount is <strong>refused with the exact rule id, and nothing is created.</strong> The Docker daemon's own event record is the evidence.</p>
+<h2 id="lifecycle">Lifecycle</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker compose down</code></td>
+<td>Leaves workloads running and the <code>workloads</code> network in place</td>
+</tr>
+<tr>
+<td><code>down</code> then <code>up</code></td>
+<td>The executor adopts the same container and keeps its instance id</td>
+</tr>
+<tr>
+<td><strong><code>down -v</code></strong></td>
+<td><strong>A full reset with a new identity. Running workloads are orphaned</strong>: left alone, not removed</td>
+</tr>
+<tr>
+<td>Reap orphans</td>
+<td><code>venue-node reap-orphans</code> lists them (a dry run) or removes them; tested against stubs only</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="how-it-is-verified">How it is verified</h2>
+<p>The exit test builds the images, brings the bundle up on a real Docker daemon, and runs 133 required checks. A pass means the script ran to its end, every required check ran, and none failed. Any abort prints a failure. A separate self-test (22 cases, 111 assertions, including negative controls) proves the pass and fail logic against stubs.</p>
+<p>The exit test mounts the <strong>real Docker socket</strong> into the executor, so it should only run on a machine where that is acceptable.</p>
+<h2 id="what-it-does-not-do">What it does not do</h2>
+<ul>
+<li>Run more than one node.</li>
+<li>Sign placements or check owner-signed grants.</li>
+<li>Provide workload storage or restrict workload egress.</li>
+<li>Run on Debian 12, native Linux on arm64, rootless Docker or SELinux; these were not tested.</li>
+<li>Use TLS between <code>venued</code> and the executor. It is plain HTTP on an internal network and on loopback.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p><a href="14-security-model.html">14. The security model</a></p>
+<div class="pager"><a href="12-building-on-benixos.html" rel="prev">← 12. Building on BenixOS</a><a href="14-security-model.html" rel="next">14. The security model →</a></div>
+<footer>© 2026 Lockamy Studios · Cary, NC · We use AI tools to help build and write this site; a person reviews what we publish.</footer>
+</main></div>
+<script src="assets/site.js" defer></script>
+</body></html>
